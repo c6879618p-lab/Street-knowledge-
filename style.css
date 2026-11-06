@@ -130,3 +130,39 @@ textarea.txt{resize:vertical;font-family:inherit}
 body.sheet-open #darkBtn,body.sheet-open #simBtn:not(.active),body.sheet-open #pinBtn{display:none}
 @media (max-height:700px){body.sheet-open #friendsBtn,body.sheet-open #compassBtn{display:none}}
 .xbtn{min-width:44px;min-height:44px}
+/* Intro: spinning silver/gold SK, then a zoom that clears into the map */
+#splash{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:#000;touch-action:none;-webkit-user-select:none;user-select:none;animation:splashVeil .65s ease 2.55s forwards}
+#splash.is-done{animation:none;opacity:0;visibility:hidden;pointer-events:none}
+.splash-skip{position:absolute;z-index:2;top:calc(env(safe-area-inset-top) + 12px);right:calc(env(safe-area-inset-right) + 12px);min-width:44px;min-height:44px;padding:12px 14px;background:transparent;color:rgba(232,234,237,.72);font:600 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.splash-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;perspective:900px}
+.splash-glow{position:absolute;left:50%;top:44%;width:min(74vw,360px);height:min(74vw,360px);transform:translate(-50%,-54%);border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(226,186,92,.36) 0%,rgba(176,184,194,.12) 36%,transparent 68%);filter:blur(8px);animation:splashGlow 3.2s ease forwards}
+.splash-rotor{position:relative;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;will-change:transform,opacity;animation:skIntro 3.2s linear forwards}
+.splash-face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.splash-face-back{position:absolute;inset:0;transform:rotateY(180deg)}
+.splash-monogram{display:flex;align-items:center;justify-content:center;font-family:Didot,"Bodoni MT","Bodoni 72","Iowan Old Style",Palatino,"Palatino Linotype",Georgia,"Liberation Serif","Times New Roman",serif;font-weight:500;font-size:clamp(112px,34vw,196px);line-height:.78;letter-spacing:-.065em;filter:drop-shadow(0 12px 14px rgba(0,0,0,.5)) drop-shadow(0 0 18px rgba(232,196,110,.16))}
+.sk-s{color:#d7dde3}
+.sk-k{color:#e4c15c;margin-left:-.045em}
+.splash-word{margin:22px 0 0;color:rgba(226,228,232,.82);font:500 clamp(10px,2.7vw,13px)/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.48em;text-indent:.48em;text-transform:uppercase;animation:splashWord 3.2s linear forwards}
+@keyframes skIntro{
+  0%{opacity:0;transform:rotateY(-78deg) scale(.82);animation-timing-function:cubic-bezier(.16,.84,.28,1)}
+  9%{opacity:1;transform:rotateY(0deg) scale(1);animation-timing-function:cubic-bezier(.18,.72,.16,1)}
+  54%{opacity:1;transform:rotateY(720deg) scale(1);animation-timing-function:linear}
+  66%{opacity:1;transform:rotateY(720deg) scale(1.02);animation-timing-function:cubic-bezier(.55,.02,.9,.42)}
+  100%{opacity:0;transform:rotateY(720deg) scale(14)}
+}
+@keyframes splashVeil{0%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden}}
+@keyframes splashWord{0%,12%{opacity:0;transform:translateY(10px)}30%,56%{opacity:.9;transform:translateY(0)}74%,100%{opacity:0;transform:translateY(-8px)}}
+@keyframes splashGlow{0%,10%{opacity:0}28%,58%{opacity:1}100%{opacity:0}}
+@keyframes metalSheen{0%{background-position:140% 50%}100%{background-position:-40% 50%}}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  #splash .sk-s,#splash .sk-k{color:transparent;-webkit-text-fill-color:transparent;-webkit-background-clip:text;background-clip:text;background-repeat:no-repeat;background-size:250% 100%;animation:metalSheen 1.45s ease-in-out .12s 2}
+  #splash .sk-s{background-image:linear-gradient(102deg,#555e68 0%,#f7f8fa 15%,#b4bcc4 31%,#ffffff 47%,#646c75 60%,#e8ecf0 78%,#8b949d 100%)}
+  #splash .sk-k{background-image:linear-gradient(102deg,#6e5210 0%,#fff4cc 16%,#e8c25a 33%,#fff8e0 48%,#a56f0e 63%,#f0cc72 80%,#8a6214 100%)}
+}
+@media (prefers-reduced-motion:reduce){
+  #splash{animation:splashVeil .28s ease .7s forwards}
+  .splash-rotor,.splash-word,.splash-glow,#splash .sk-s,#splash .sk-k{animation:none}
+  .splash-rotor{opacity:1;transform:none}
+  .splash-word{opacity:.9;transform:none}
+  .splash-glow{opacity:.85}
+}

@@ -1,4 +1,4 @@
-const V='street-knowledge-v8';
+const V='street-knowledge-v9';
 const SHELL=['./','index.html','style.css','app.js','presence.js','vision.js','social.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png',
 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js','https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css','https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
