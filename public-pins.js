@@ -9,7 +9,7 @@
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.PublicPins = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
-  const BLOCKER = 'Not public yet. Street Knowledge has no durable public database, so this exact address was not sent to anyone. It is saved on this device only. The free sharing brokers can drop messages and cannot prove who created a pin, so they are not used for this. Nothing was published.';
+  const BLOCKER = 'Public publishing is off. It needs a connected store and a signed-in owner. Save on this device keeps a pin on this phone only. Other people will not see it. Nothing was published.';
 
   function okCoord(lon, lat) {
     return typeof lon === 'number' && typeof lat === 'number' && Number.isFinite(lon) && Number.isFinite(lat) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
@@ -50,6 +50,93 @@
       throw err;
     }
     return { source: 'geocode', lon: place.lon, lat: place.lat, name: place.name || '', address: place.address, confirmed: true };
+  }
+
+  function publishControl(connected, mode, groupShareChecked) {
+    const group = mode === 'private' && !!groupShareChecked;
+    return {
+      publishEnabled: !!connected,
+      publishHidden: !connected,
+      saveLabel: group ? 'Share with group' : 'Save on this device',
+      status: connected
+        ? 'Signed in. Publish publicly keeps this exact address visible to other people after you close the app. Only that account can edit or delete it.'
+        : 'Public publishing needs a connected store and a signed-in owner. It is turned off. Save on this device keeps the pin on this phone only. Other people will not see it.'
+    };
+  }
+
+  function jwtRole(token) {
+    const part = String(token || '').split('.')[1];
+    if (!part) return '';
+    try {
+      const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = b64 + '='.repeat((4 - b64.length % 4) % 4);
+      const json = typeof atob === 'function' ? atob(padded) : Buffer.from(padded, 'base64').toString('utf8');
+      return JSON.parse(json).role || '';
+    } catch (e) { return ''; }
+  }
+
+  function createSupabaseStore(config, fetchImpl) {
+    config = config || {};
+    const fetchFn = fetchImpl || null;
+    const url = String(config.url || '').replace(/\/$/, '');
+    const anonKey = config.anonKey || '';
+    const accessToken = config.accessToken || '';
+    if (!url || !anonKey || !accessToken || !fetchFn) {
+      const err = new Error('Supabase public pin store is not configured');
+      err.code = 'not-configured';
+      throw err;
+    }
+    if (jwtRole(anonKey) === 'service_role' || jwtRole(accessToken) === 'service_role') {
+      const err = new Error('Refusing a service role key in the client');
+      err.code = 'forbidden-key';
+      throw err;
+    }
+    const base = url + '/rest/v1/public_pins';
+    function headers(extra) {
+      return Object.assign({
+        apikey: anonKey,
+        Authorization: 'Bearer ' + accessToken,
+        'Content-Type': 'application/json'
+      }, extra || {});
+    }
+    async function parse(res) {
+      if (res.status === 401 || res.status === 403) return { ok: false, reason: 'not-owner', status: res.status };
+      if (!res.ok) return { ok: false, reason: 'http-' + res.status, status: res.status };
+      const text = await res.text();
+      return { ok: true, body: text ? JSON.parse(text) : null };
+    }
+    return {
+      connected: true,
+      provider: 'supabase',
+      async publish(pin) {
+        const res = await fetchFn(base, {
+          method: 'POST',
+          headers: headers({ Prefer: 'return=representation' }),
+          body: JSON.stringify({ id: pin.id, lon: pin.lon, lat: pin.lat, address: pin.address, label: pin.label || '', visibility: 'public' })
+        });
+        return parse(res);
+      },
+      async list() {
+        const res = await fetchFn(base + '?select=id,lon,lat,address,label,visibility,created_at&visibility=eq.public', { headers: headers() });
+        const parsed = await parse(res);
+        return parsed.ok && parsed.body ? parsed.body : [];
+      },
+      async update(id, patch) {
+        const res = await fetchFn(base + '?id=eq.' + encodeURIComponent(id), {
+          method: 'PATCH',
+          headers: headers({ Prefer: 'return=representation' }),
+          body: JSON.stringify({ label: patch.label || '' })
+        });
+        return parse(res);
+      },
+      async remove(id) {
+        const res = await fetchFn(base + '?id=eq.' + encodeURIComponent(id), {
+          method: 'DELETE',
+          headers: headers({ Prefer: 'return=minimal' })
+        });
+        return parse(res);
+      }
+    };
   }
 
   function shareTarget(mode, base, pinId) {
@@ -119,15 +206,14 @@
           ts: now(),
           published: false
         };
-        const ownerToken = connected && store.issueToken ? store.issueToken(pin) : null;
-        if (connected) {
-          const sent = await store.publish(pin, ownerToken);
-          if (!sent || sent.ok === false) return { pin: pin, published: false, blocker: BLOCKER, ownerToken: null };
-          pin.published = true;
-        }
-        local = local.filter(item => item.id !== pin.id).concat([Object.assign({}, pin, { ownerToken: ownerToken })]);
+        if (!connected) return { pin: null, published: false, blocker: BLOCKER, ownerToken: null };
+        const ownerToken = store.issueToken ? store.issueToken(pin) : null;
+        const sent = await store.publish(pin, ownerToken);
+        if (!sent || sent.ok === false) return { pin: null, published: false, blocker: BLOCKER, ownerToken: null };
+        pin.published = true;
+        local = local.filter(item => item.id !== pin.id).concat([Object.assign({}, pin)]);
         saveLocal();
-        return { pin: Object.assign({}, pin), published: pin.published, blocker: pin.published ? '' : BLOCKER, ownerToken: ownerToken };
+        return { pin: Object.assign({}, pin), published: true, blocker: '', ownerToken: ownerToken };
       },
       async updateLocal(id, patch, ownerToken) {
         const i = local.findIndex(pin => pin.id === id);
@@ -167,7 +253,9 @@
     parsePhoton: parsePhoton,
     confirmPlace: confirmPlace,
     shareTarget: shareTarget,
+    publishControl: publishControl,
     memoryStore: memoryStore,
+    createSupabaseStore: createSupabaseStore,
     createBook: createBook
   };
 });

@@ -218,11 +218,11 @@
       <div class="col"><label for="pinNote">Note (optional)</label><textarea id="pinNote" class="txt" maxlength="200" rows="3"></textarea></div>
       <div class="row"><label><input type="checkbox" id="pinShare"> <span id="pinShareLbl">Share</span></label></div>
       <div id="pinWho" class="notice"></div>
-      <button type="button" id="pinSave" class="primary wide">Save pin</button>
+      <button type="button" id="pinSave" class="primary wide">Save on this device</button>
       <div id="pinPublicBox" class="notice">
         <b>Public</b>
-        <p id="pinPublicStatus"></p>
-        <button type="button" id="pinPublishPublic" class="primary wide">Publish publicly</button>
+        <p id="pinPublicStatus">Public publishing needs a connected store and a signed-in owner. It is turned off. Save on this device keeps the pin on this phone only. Other people will not see it.</p>
+        <button type="button" id="pinPublishPublic" class="primary wide" hidden disabled>Publish publicly</button>
       </div>
     </div>
     <div id="pinView" class="hidden">

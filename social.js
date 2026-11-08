@@ -61,19 +61,28 @@ const publicBook = PublicPins.createBook({
 });
 function drawPublic() {
   for (const m of publicMarkers.values()) m.remove(); publicMarkers.clear();
-  for (const p of publicBook.listLocal()) {
+  for (const p of publicBook.listLocal().filter(pin => pin.published)) {
     const el = pinEl({ id: p.id, e: '📌', t: p.label || p.address }, false);
     el.classList.add('public-held');
     publicMarkers.set(p.id, new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat([p.lon, p.lat]).addTo(map));
   }
 }
 function findPublic(id) { return publicBook.listLocal().find(p => p.id === id); }
+function syncPinActions() {
+  const control = PublicPins.publishControl(publicBook.connected, P.st.mode, $('pinShare').checked);
+  $('pinSave').textContent = control.saveLabel;
+  $('pinPublishPublic').disabled = !control.publishEnabled;
+  $('pinPublishPublic').classList.toggle('hidden', control.publishHidden);
+  if (control.publishHidden) $('pinPublishPublic').setAttribute('hidden', '');
+  else $('pinPublishPublic').removeAttribute('hidden');
+  if (!editingPublicId) $('pinPublicStatus').textContent = control.status;
+}
 function resetAddressUi() {
   pendingPlace = null; confirmedPlace = null; editingPublicId = null;
   $('pinAddr').value = ''; $('pinAddrList').classList.add('hidden'); $('pinAddrList').innerHTML = '';
   $('pinChosen').classList.add('hidden'); $('pinChosen').textContent = '';
   $('pinConfirmBtn').classList.add('hidden');
-  $('pinPublicStatus').textContent = publicBook.blocker;
+  syncPinActions();
 }
 function configureShare() {
   const priv = P.st.mode === 'private' && !!P.client;
@@ -90,7 +99,8 @@ function openNewPin(lngLat) {
 function updWho() {
   if (P.st.mode === 'private' && $('pinShare').checked) $('pinWho').textContent = `🔒 Visible to group ${P.st.code}. People who join that group later can see it while the group broker keeps the message.`;
   else if (P.st.mode === 'private') $('pinWho').textContent = '🔒 Only you will see this pin (saved on this device).';
-  else $('pinWho').textContent = 'This map pin stays on this device. It is not sent to other people.';
+  else $('pinWho').textContent = 'Save on this device keeps this pin on this phone. It is not sent to other people.';
+  syncPinActions();
 }
 $('pinShare').onchange = updWho;
 $('pinAddr').addEventListener('input', () => {
@@ -116,7 +126,7 @@ async function searchPinAddr(q) {
       d.onclick = () => {
         pendingPlace = place; confirmedPlace = null; box.classList.add('hidden');
         $('pinChosen').classList.remove('hidden');
-        $('pinChosen').textContent = `Selected ${place.address} (${place.lat}, ${place.lon}). Confirm this exact point. It is not public yet.`;
+        $('pinChosen').textContent = `Selected ${place.address} (${place.lat}, ${place.lon}). Confirm this exact point before saving it on this device.`;
         $('pinConfirmBtn').classList.remove('hidden');
       };
       box.appendChild(d);
@@ -128,21 +138,23 @@ $('pinConfirmBtn').onclick = () => {
   try {
     confirmedPlace = PublicPins.confirmPlace(pendingPlace);
     editAt = [confirmedPlace.lon, confirmedPlace.lat];
-    $('pinChosen').textContent = `Confirmed ${confirmedPlace.address} at ${confirmedPlace.lat}, ${confirmedPlace.lon}. Still only on this device until you publish, and publishing needs a durable store.`;
+    $('pinChosen').textContent = `Confirmed ${confirmedPlace.address} at ${confirmedPlace.lat}, ${confirmedPlace.lon}. Save on this device does not show it to other people.`;
     $('pinConfirmBtn').classList.add('hidden');
   } catch (e) { $('pinPublicStatus').textContent = e.message; }
 };
 $('pinPublishPublic').onclick = async () => {
+  if (!publicBook.connected || $('pinPublishPublic').disabled) return;
   try {
     if (editingPublicId) {
       const edited = await publicBook.updateLocal(editingPublicId, { label: $('pinTitle').value }, null);
-      $('pinPublicStatus').textContent = edited.ok ? 'Label updated on this device. ' + publicBook.blocker : 'Could not update that pin.';
+      $('pinPublicStatus').textContent = edited.ok ? 'Label updated for other people.' : 'Could not update that pin.';
       drawPublic(); return;
     }
     const result = await publicBook.publishPublic({ place: confirmedPlace, label: $('pinTitle').value });
-    $('pinPublicStatus').textContent = result.blocker || 'Published.';
+    if (!result.published) { $('pinPublicStatus').textContent = result.blocker; return; }
+    $('pinPublicStatus').textContent = 'Published. Other people can see this address after you close the app.';
     drawPublic();
-    if (!result.published) toast('Saved on this device only');
+    closePin();
   } catch (e) { $('pinPublicStatus').textContent = e.message || 'Confirm an address from search first. Nothing was published.'; }
 };
 function closePin() { $('pinPanel').classList.add('hidden'); viewing = null; }
@@ -164,7 +176,7 @@ function viewPin(id) {
   $('pinHead').textContent = pub ? 'Address pin' : (s ? 'Shared pin' : 'My pin');
   $('pinEdit').classList.add('hidden'); $('pinView').classList.remove('hidden');
   $('pvEmoji').textContent = pub ? '📌' : p.e; $('pvTitle').textContent = pub ? (p.label || p.address) : p.t; $('pvNote').textContent = pub ? p.address : p.n;
-  $('pvMeta').textContent = pub ? 'On this device only. Not a live car, and not visible to other people. ' + publicBook.blocker : ((s ? `Added by ${p.by === P.st.name && p.bid === P.st.cid ? 'you' : p.by} · ` : 'Only visible to you · ') + fmtTime(p.ts));
+  $('pvMeta').textContent = pub ? 'Public address pin, separate from live cars. Edit and delete use the signed-in account, not this device id.' : ((s ? `Added by ${p.by === P.st.name && p.bid === P.st.cid ? 'you' : p.by} · ` : 'Saved on this device · ') + fmtTime(p.ts));
   $('pvEdit').classList.toggle('hidden', !pub);
   $('pvDel').classList.toggle('hidden', !pub && !!s && (p.bid !== P.st.cid || s.topic.indexOf('/pins/g/') === -1));
   $('pinPanel').classList.remove('hidden');
@@ -176,14 +188,14 @@ $('pvEdit').onclick = () => {
   editAt = [p.lon, p.lat]; $('pinTitle').value = p.label || '';
   $('pinHead').textContent = 'Edit label on this device';
   $('pinEdit').classList.remove('hidden'); $('pinView').classList.add('hidden');
-  $('pinPublicStatus').textContent = 'A new label stays on this device. ' + publicBook.blocker;
+  $('pinPublicStatus').textContent = publicBook.connected ? 'Update the public label with your signed-in account.' : PublicPins.publishControl(false, 'public', false).status;
 };
 $('pvDel').onclick = async () => {
   const pub = findPublic(viewing);
   if (pub) {
     const removed = await publicBook.remove(pub.id, pub.ownerToken || null);
     if (!removed.ok) { toast('Could not remove that pin'); return; }
-    drawPublic(); toast(removed.removedRemote ? 'Public pin removed' : 'Removed on this device. It was not published.'); closePin(); return;
+    drawPublic(); toast(removed.removedRemote ? 'Public pin removed' : 'Removed on this device.'); closePin(); return;
   }
   const s = shared.get(viewing);
   if (s) { if (P.client && s.topic.indexOf('/pins/g/') !== -1) { P.client.publish(s.topic, '', { retain: true, qos: 1 }); } else { toast('A shared group pin can only be cleared while group sharing is connected'); return; } }
