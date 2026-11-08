@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
     paths: ['native/**', 'docs/**', '.github/workflows/android.yml']
+  pull_request:
+    paths: ['native/**', 'docs/**', '.github/workflows/android.yml']
   workflow_dispatch:
 defaults:
   run:
@@ -35,20 +37,30 @@ jobs:
             printf 'storeFile=%s\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' "$PWD/keys/upload.jks" "$KS_PASS" "$KEY_ALIAS" "$KEY_PASS" > keys/keystore.properties
             echo "SIGNED=1" >> $GITHUB_ENV
           fi
-      - name: Build debug APK
+      - name: Build release APK
         working-directory: native/android
-        run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
-        env: { VERSION_CODE: '${{ github.run_number }}' }
-      - name: Build signed release APK + AAB
+        # versionCode 4 / versionName 1.0.3 from app/build.gradle.
+        # github.run_number on this repo is below the installed APK (versionCode 3).
+        run: chmod +x gradlew && ./gradlew assembleRelease --no-daemon
+      - name: Build signed release AAB
         if: env.SIGNED == '1'
         working-directory: native/android
-        run: ./gradlew assembleRelease bundleRelease --no-daemon
-        env: { VERSION_CODE: '${{ github.run_number }}' }
-      - uses: actions/upload-artifact@v4
+        run: ./gradlew bundleRelease --no-daemon
+      - name: Upload unsigned release APK
+        if: env.SIGNED != '1'
+        uses: actions/upload-artifact@v4
         with:
-          name: mycargps-android
+          name: street-knowledge-release-unsigned
+          path: native/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          if-no-files-found: error
+      - name: Upload signed release
+        if: env.SIGNED == '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: street-knowledge-release-signed
           path: |
-            native/android/app/build/outputs/apk/**/*.apk
-            native/android/app/build/outputs/bundle/**/*.aab
+            native/android/app/build/outputs/apk/release/*.apk
+            native/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
       - if: always()
         run: rm -rf keys
