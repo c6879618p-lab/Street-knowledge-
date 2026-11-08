@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Street Knowledge</string>
+    <string name="title_activity_main">Street Knowledge</string>
+    <string name="package_name">com.paynelessservices.mycargps</string>
+    <string name="custom_url_scheme">com.paynelessservices.mycargps</string>
+</resources>

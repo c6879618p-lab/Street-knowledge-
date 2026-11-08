@@ -1,0 +1,38 @@
+name: iOS build (unsigned, compile check)
+on:
+  push:
+    branches: [main]
+    paths: ['native/**', 'docs/**', '.github/workflows/ios.yml']
+  workflow_dispatch:
+defaults:
+  run:
+    working-directory: native
+jobs:
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: native/package-lock.json }
+      - run: npm ci
+      - name: Copy PWA from docs/ and sync Capacitor (runs pod install)
+        run: WEB_SRC=../docs bash scripts/copy-web.sh && npx cap sync ios
+      - name: Show Xcode
+        run: xcodebuild -version
+      - name: Build for iOS Simulator
+        working-directory: native/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+      - name: Build for device (unsigned)
+        working-directory: native/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath build-device CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+      - name: Zip simulator app
+        working-directory: native/ios/App
+        run: cd build/Build/Products/Debug-iphonesimulator && zip -qr $GITHUB_WORKSPACE/StreetKnowledge-simulator.app.zip App.app
+      - uses: actions/upload-artifact@v4
+        with: { name: mycargps-ios-simulator, path: StreetKnowledge-simulator.app.zip }

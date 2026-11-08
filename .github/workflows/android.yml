@@ -1,0 +1,54 @@
+name: Android build
+on:
+  push:
+    branches: [main]
+    paths: ['native/**', 'docs/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+defaults:
+  run:
+    working-directory: native
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: native/package-lock.json }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: gradle }
+      - uses: android-actions/setup-android@v3
+        with:
+          # Default package list still includes the removed "tools" package.
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+      - run: npm ci
+      - name: Copy PWA from docs/ and sync Capacitor
+        run: WEB_SRC=../docs bash scripts/copy-web.sh && npx cap sync android
+      - name: Set up release signing (only if secrets exist)
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            mkdir -p keys && echo "$KS_B64" | base64 -d > keys/upload.jks
+            printf 'storeFile=%s\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' "$PWD/keys/upload.jks" "$KS_PASS" "$KEY_ALIAS" "$KEY_PASS" > keys/keystore.properties
+            echo "SIGNED=1" >> $GITHUB_ENV
+          fi
+      - name: Build debug APK
+        working-directory: native/android
+        run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+        env: { VERSION_CODE: '${{ github.run_number }}' }
+      - name: Build signed release APK + AAB
+        if: env.SIGNED == '1'
+        working-directory: native/android
+        run: ./gradlew assembleRelease bundleRelease --no-daemon
+        env: { VERSION_CODE: '${{ github.run_number }}' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mycargps-android
+          path: |
+            native/android/app/build/outputs/apk/**/*.apk
+            native/android/app/build/outputs/bundle/**/*.aab
+      - if: always()
+        run: rm -rf keys

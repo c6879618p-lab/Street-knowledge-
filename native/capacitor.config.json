@@ -1,0 +1,9 @@
+{
+  "appId": "com.paynelessservices.mycargps",
+  "appName": "Street Knowledge",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "android": { "allowMixedContent": false },
+  "ios": { "contentInset": "never" },
+  "plugins": {}
+}

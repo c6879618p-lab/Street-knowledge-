@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Instant Quote Estimator | Appalachian Fence and Deck</title>
+<meta name="description" content="Residential fence and deck installation and repair in Asheville, Hendersonville and Western North Carolina. Wood, vinyl, chain link and aluminum fencing. Free quotes: (704) 678-2921.">
+<link rel="canonical" href="https://www.appalachianfenceanddeck.com/quote.html">
+<meta property="og:title" content="Appalachian Fence and Deck — Built for Mountain Properties">
+<meta property="og:description" content="Fences and decks designed for the slopes, soil and weather of Western North Carolina.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#1f3a2e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f3a2e'/%3E%3Cpath d='M4 24 12 10l5 8 3-4 8 10z' fill='%23e8a33d'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="css/styles.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HomeAndConstructionBusiness","name":"Appalachian Fence and Deck LLC","telephone":"+1-704-678-2921","email":"appalachianfenceanddeck@gmail.com","url":"https://www.appalachianfenceanddeck.com/","areaServed":["Asheville NC","Hendersonville NC","Arden NC","Fletcher NC","Mills River NC","Weaverville NC"]}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="Appalachian Fence and Deck home">
+      <svg viewBox="0 0 40 28" width="40" height="28" aria-hidden="true"><path d="M1 27 13 6l8 12 5-7 13 16z" fill="#e8a33d"/><path d="M6 27v-8m6 8v-8m6 8v-8m6 8v-8m6 8v-8m6 8v-8M3 22h34" stroke="#fff" stroke-width="2"/></svg>
+      <span>Appalachian<br><b>Fence &amp; Deck</b></span>
+    </a>
+    <button class="menu-btn" aria-expanded="false" aria-controls="menu">Menu</button>
+    <nav id="menu" aria-label="Main">
+      <a href="index.html#services">Services</a><a href="index.html#process">Process</a><a href="index.html#gallery">Our Work</a><a href="index.html#area">Service Area</a><a href="quote.html">Instant Estimate</a><a href="index.html#quote" class="btn btn-sm">Free Quote</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section q-head"><div class="wrap">
+<h1>Instant Quote Estimator</h1>
+<p class="sub">Find your property, draw your fence line or deck outline on the satellite map, and get a ballpark price range in seconds.</p>
+</div></section>
+<section class="wrap q-grid">
+ <div>
+  <form id="searchForm" class="search" role="search"><label for="addr" class="sr">Property address</label><input id="addr" placeholder="Enter your property address" autocomplete="street-address"><button class="btn btn-sm" type="submit">Find</button></form>
+  <p id="searchMsg" class="small" aria-live="polite"></p>
+  <div id="map" aria-label="Satellite map. Tap to add points."></div>
+  <div class="map-tools"><span id="hint" class="small">Tap the map along your fence line, one tap per corner.</span><span><button type="button" id="undo" class="btn-line">Undo</button> <button type="button" id="clear" class="btn-line">Clear</button></span></div>
+ </div>
+ <div id="opts" class="panel">
+  <fieldset class="seg"><legend>Project type</legend>
+   <label><input type="radio" name="ptype" value="fence" checked> Fence</label>
+   <label><input type="radio" name="ptype" value="deck"> Deck</label></fieldset>
+  <div id="fenceOpts" class="opts">
+   <label>Material<select id="material"><option value="wood">Pressure-treated wood</option><option value="vinyl">Vinyl</option><option value="chainlink">Chain link</option><option value="aluminum">Aluminum</option></select></label>
+   <label>Height<select id="height"><option value="6">6 ft</option><option value="4">4 ft</option></select></label>
+   <label>Gates<input id="gates" type="number" min="0" max="10" value="1" inputmode="numeric"></label>
+  </div>
+  <div id="deckOpts" class="opts" hidden>
+   <label>Decking<select id="deckMat"><option value="pt">Pressure-treated</option><option value="composite">Composite</option></select></label>
+   <label>Height<select id="level"><option value="ground">Ground-level</option><option value="elevated">Elevated</option></select></label>
+   <label class="chk"><input id="railing" type="checkbox"> Add railing</label>
+  </div>
+  <div class="result" aria-live="polite"><div class="small">Measured</div><div id="measure" class="big">0</div><div class="small">Estimated range</div><div id="estimate" class="big accent">—</div></div>
+  <p class="disclaimer">This is a rough online estimate, not a quote. Your final price is confirmed after a free on-site visit, where we check slope, soil, access, permits, and removal of any old fence or deck.</p>
+ </div>
+</section>
+<section class="section quote" id="send"><div class="wrap">
+ <h2>Send my quote request</h2>
+ <!-- PLACEHOLDER: replace action with your Formspree endpoint, e.g. https://formspree.io/f/XXXXXXX -->
+ <form id="reqForm" class="form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+  <label>Name<input name="name" required autocomplete="name"></label>
+  <label>Phone<input name="phone" type="tel" required autocomplete="tel"></label>
+  <label>Email<input name="email" type="email" autocomplete="email"></label>
+  <label>Property address<input id="f_address" name="address" autocomplete="street-address"></label>
+  <label class="full">Notes<textarea name="notes" rows="3" placeholder="Timeline, old fence removal, pets, HOA rules…"></textarea></label>
+  <label class="full">Measurement &amp; options<input id="f_measure" name="measurement" readonly></label>
+  <label>Online estimate<input id="f_estimate" name="estimate" readonly></label>
+  <input type="hidden" id="f_points" name="points">
+  <button class="btn" type="submit">Send my quote request</button>
+  <button class="btn btn-ghost-dark" type="button" id="mailtoBtn">Or email it instead</button>
+ </form>
+</div></section>
+</main>
+
+<footer class="footer">
+  <div class="wrap foot">
+    <div><b>Appalachian Fence and Deck LLC</b><br>Fence &amp; deck contractors in Western North Carolina</div>
+    <div><a href="tel:+17046782921">(704) 678-2921</a><br><a href="mailto:appalachianfenceanddeck@gmail.com">appalachianfenceanddeck@gmail.com</a></div>
+    <div>Hours: Mon–Fri 7 AM – 5 PM<br>Sat–Sun closed<br>Website: <a href="https://www.appalachianfenceanddeck.com/">appalachianfenceanddeck.com</a><br>© <span id="yr">2026</span> Appalachian Fence and Deck LLC</div>
+  </div>
+</footer>
+<a class="call-fab" href="tel:+17046782921" aria-label="Call Appalachian Fence and Deck">Call Now</a>
+<script src="vendor/leaflet.js"></script>
+<script src="vendor/turf.min.js"></script>
+<script src="js/main.js"></script>
+<script src="js/quote.js"></script>
+</body>
+</html>

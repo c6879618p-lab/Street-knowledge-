@@ -1,0 +1,29 @@
+{
+  "name": "street-knowledge-native",
+  "version": "1.0.0",
+  "description": "MyCar GPS native apps (Capacitor) wrapping the MyCar GPS PWA",
+  "main": "index.js",
+  "scripts": {
+    "copy-web": "bash scripts/copy-web.sh",
+    "icons": "python3 scripts/make-icons.py",
+    "sync": "bash scripts/copy-web.sh && npx cap sync",
+    "build:android:debug": "npm run sync && cd android && ./gradlew assembleDebug",
+    "build:android:release": "npm run sync && cd android && ./gradlew assembleRelease bundleRelease"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor-community/text-to-speech": "^6.1.0",
+    "@capacitor/android": "^7.6.10",
+    "@capacitor/camera": "^7.0.5",
+    "@capacitor/core": "^7.6.10",
+    "@capacitor/geolocation": "^7.1.8",
+    "@capacitor/ios": "^7.6.10"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.6.10"
+  },
+  "private": true
+}

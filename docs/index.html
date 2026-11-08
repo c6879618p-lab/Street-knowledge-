@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en" style="background:#000">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Street Knowledge">
+<meta name="application-name" content="Street Knowledge">
+<title>Street Knowledge</title>
+<style>
+#splash{position:fixed;inset:0;z-index:100000;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#splash .splash-monogram{display:flex;align-items:center;font:500 clamp(112px,34vw,196px)/.78 Didot,"Bodoni MT","Times New Roman",serif;letter-spacing:-.06em}
+#splash .sk-s{color:#d7dde3}#splash .sk-k{color:#e4c15c}
+#splash .splash-word{margin:18px 0 0;color:rgba(226,228,232,.8);font:500 12px/1 system-ui,sans-serif;letter-spacing:.42em;text-transform:uppercase}
+#splash .splash-skip{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:calc(env(safe-area-inset-right) + 12px);min-width:44px;min-height:44px;background:transparent;color:rgba(232,234,237,.75);font:600 12px/1 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body style="background:#000">
+<div id="splash">
+  <button type="button" id="splashSkip" class="splash-skip">Skip</button>
+  <div class="splash-stage">
+    <div class="splash-glow" aria-hidden="true"></div>
+    <div class="splash-rotor">
+      <div class="splash-face splash-face-front">
+        <div class="splash-monogram" aria-hidden="true"><span class="sk-s">S</span><span class="sk-k">K</span></div>
+      </div>
+      <div class="splash-face splash-face-back" aria-hidden="true">
+        <div class="splash-monogram"><span class="sk-s">S</span><span class="sk-k">K</span></div>
+      </div>
+    </div>
+    <p class="splash-word">Street Knowledge</p>
+  </div>
+</div>
+<script>
+(function () {
+  var splash = document.getElementById('splash');
+  if (!splash) return;
+  var done = false;
+  function resizeMap() {
+    var map = window.__map;
+    if (map && typeof map.resize === 'function') { try { map.resize(); } catch (e) {} }
+  }
+  function reveal() {
+    if (done) return;
+    done = true;
+    splash.classList.add('is-done');
+    splash.setAttribute('aria-hidden', 'true');
+    document.documentElement.style.background = '';
+    document.body.style.background = '';
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', '#1a73e8');
+    resizeMap();
+    setTimeout(function () {
+      if (splash.parentNode) splash.parentNode.removeChild(splash);
+      resizeMap();
+    }, 420);
+  }
+  document.getElementById('splashSkip').addEventListener('click', reveal);
+  splash.addEventListener('animationend', function (e) { if (e.target === splash) reveal(); });
+  setTimeout(reveal, 4500);
+})();
+</script>
+<div id="map"></div>
+
+<!-- Nav banner -->
+<div id="navBanner" class="hidden">
+  <div class="nb-icon" id="nbIcon">↑</div>
+  <div class="nb-text"><div id="nbDist" class="nb-dist">—</div><div id="nbInstr" class="nb-instr">—</div></div>
+</div>
+
+<!-- Search -->
+<div id="searchWrap">
+  <div id="searchBar">
+    <span class="sb-icon">🔍</span>
+    <input id="searchInput" type="search" placeholder="Search here" autocomplete="off">
+    <button id="clearSearch" class="hidden" aria-label="Clear">✕</button>
+    <button id="carBtn" class="avatar" aria-label="My Car" title="My Car"><img id="carBtnImg" alt=""></button>
+  </div>
+  <div id="suggestions" class="hidden"></div>
+</div>
+
+<!-- Floating buttons -->
+<div id="fabs">
+  <button class="fab" id="chatBtn" title="Chat">💬<span id="chatBadge" class="badge hidden">0</span></button>
+  <button class="fab" id="pinBtn" title="Drop pin">📌</button>
+  <button class="fab" id="friendsBtn" title="Share / Friends">👥<span id="friendsDot" class="hidden"></span></button>
+  <button class="fab" id="darkBtn" title="Dark mode">🌙</button>
+  <button class="fab" id="simBtn" title="Simulate drive">▶︎</button>
+  <button class="fab" id="compassBtn" title="North up"><span id="compassNeedle">➤</span></button>
+  <button class="fab big" id="locateBtn" title="Your location">◎</button>
+</div>
+<div id="speedPill" class="hidden"><b id="speedVal">0</b><small>mph</small></div>
+<div id="toast" class="hidden"></div>
+
+<!-- Bottom sheet -->
+<div id="sheet" class="hidden">
+  <div class="grab"></div>
+  <div id="sheetPlace"><div id="placeName" class="pn"></div><div id="placeAddr" class="pa"></div></div>
+  <div class="route-sum">
+    <div><span id="eta" class="eta">—</span> <span id="dist" class="dist"></span></div>
+    <div id="arrive" class="arrive"></div>
+  </div>
+  <div class="sheet-actions">
+    <button id="startBtn" class="primary">▲ Start</button>
+    <button id="stepsBtn" class="secondary">☰ Steps</button>
+    <button id="closeRoute" class="secondary">✕</button>
+  </div>
+  <ol id="steps" class="hidden"></ol>
+</div>
+
+<!-- Nav bottom bar -->
+<div id="navBar" class="hidden">
+  <button id="exitNav" class="round red">✕</button>
+  <div class="nv-mid"><div><span id="navEta" class="eta">—</span></div><div id="navRemain" class="dist"></div></div>
+  <button id="voiceBtn" class="round">🔊</button>
+</div>
+
+<!-- Car panel -->
+<div id="carPanel" class="panel hidden">
+  <div class="panel-card">
+    <div class="panel-head"><h2>My Car</h2><button id="closeCar" class="xbtn">✕</button></div>
+    <div class="preview-wrap"><div id="preview"><img id="previewImg" alt="car preview"></div><div class="arrow-hint">▲ front</div></div>
+    <div class="photo-sources" role="group" aria-label="Car photo">
+      <button type="button" class="secondary" id="carGalleryBtn">Choose from Gallery</button>
+      <button type="button" class="primary" id="carCameraBtn">Take a Photo</button>
+    </div>
+    <input id="fileInput" class="photo-input" type="file" accept="image/*" tabindex="-1" aria-hidden="true">
+    <input id="fileInputCamera" class="photo-input" type="file" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
+    <div id="procStatus" class="status"></div>
+    <div class="row"><label><input type="checkbox" id="bgRemove" checked> Remove background automatically</label></div>
+    <div class="row"><label>Style
+      <select id="frameMode"><option value="cutout">Cut-out (no frame)</option><option value="badge">Round badge</option></select></label></div>
+    <div class="row"><label>Size <input type="range" id="sizeRange" min="32" max="140" value="64"></label></div>
+    <div class="row"><label>Rotate (point nose up ▲) <input type="range" id="rotRange" min="-180" max="180" step="5" value="0"></label><span id="rotVal">0°</span></div>
+    <div class="row"><label><input type="checkbox" id="rotateWithHeading" checked> Turn with driving direction</label></div>
+    <button id="carDetails" class="secondary wide">📝 Add car details / business card</button>
+    <h3>Or pick an icon</h3>
+    <div id="defaults"></div>
+  </div>
+</div>
+<!-- Friends panel -->
+<div id="friendsPanel" class="panel hidden">
+  <div class="panel-card">
+    <div class="panel-head"><h2>Share / Friends</h2><button id="closeFriends" class="xbtn">✕</button></div>
+    <div class="row"><label>Your name <input id="fName" maxlength="20" placeholder="e.g. Alex" class="txt"></label></div>
+    <button id="fDetails" class="secondary wide">📝 My details / business card</button>
+    <div class="modes" id="fModes">
+      <button data-mode="public">🌍 Public</button><button data-mode="private">🔒 Private group</button><button data-mode="off">⛔ Off</button>
+    </div>
+    <div id="fPrivate" class="hidden">
+      <div class="row"><label>Group code <input id="fCode" maxlength="6" placeholder="ABC123" class="txt code"></label><button id="fNew" class="secondary">New</button><button id="fJoin" class="secondary">Join</button></div>
+      <div class="row"><input id="fLink" class="txt" readonly><button id="fShare" class="secondary">Share link</button></div>
+    </div>
+    <div id="fStatus" class="status"></div>
+    <p class="notice" id="fNotice"></p>
+    <h3>Online now</h3>
+    <div id="fList"><div class="status">Nobody yet</div></div>
+  </div>
+</div>
+<!-- My details panel -->
+<div id="profilePanel" class="panel hidden">
+  <div class="panel-card">
+    <div class="panel-head"><h2>My details</h2><button id="closeProfile" class="xbtn">✕</button></div>
+    <p class="notice">Shown to other drivers who tap your car (public map or your private group). Text only.</p>
+    <div class="col"><label>About my car</label><input id="pDesc" class="txt" maxlength="80" placeholder="e.g. Blue 2019 Honda Civic"></div>
+    <div class="col"><label>Short bio (optional)</label><textarea id="pBio" class="txt" maxlength="200" rows="2" placeholder="Say hi…"></textarea></div>
+    <div class="row"><label><input type="checkbox" id="pMobile"> I run a mobile service (detailing, mechanic, food truck…)</label></div>
+    <div id="pBizFields" class="hidden">
+      <div class="col"><label>Business name</label><input id="pBizName" class="txt" maxlength="60"></div>
+      <div class="col"><label>Service type</label><input id="pBizType" class="txt" maxlength="40" placeholder="Mobile detailing"></div>
+      <div class="col"><label>Phone</label><input id="pPhone" class="txt" type="tel" maxlength="24"></div>
+      <div class="col"><label>Website</label><input id="pWeb" class="txt" type="url" maxlength="120" placeholder="https://"></div>
+      <div class="photo-sources" role="group" aria-label="Business card photo">
+        <button type="button" class="secondary" id="cardGalleryBtn">Choose from Gallery</button>
+        <button type="button" class="primary" id="cardCameraBtn">Take a Photo</button>
+      </div>
+      <input id="pCardFile" class="photo-input" type="file" accept="image/*" tabindex="-1" aria-hidden="true">
+      <input id="pCardCamera" class="photo-input" type="file" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
+      <div class="row"><img id="pCardImg" class="card-thumb hidden" alt="business card"><button id="pCardDel" class="secondary hidden">Remove card</button></div>
+    </div>
+    <div id="pStatus" class="status"></div>
+    <button id="pSave" class="primary wide">Save details</button>
+  </div>
+</div>
+<!-- Other driver's profile -->
+<div id="peerSheet" class="panel hidden">
+  <div class="panel-card">
+    <div class="panel-head"><h2 id="psName"></h2><button id="closePeer" class="xbtn">✕</button></div>
+    <div class="ps-top"><img id="psCar" alt=""><div><div id="psBadge" class="biz-tag hidden"></div><div id="psDist" class="status"></div></div></div>
+    <div id="psDesc" class="ps-desc"></div><div id="psBio" class="ps-bio"></div>
+    <div id="psBiz" class="hidden"><div id="psBizName" class="ps-desc"></div>
+      <img id="psCard" class="card-thumb" alt="business card">
+      <div class="ps-links"><a id="psCall" class="primary hidden">📞 Call</a><a id="psWeb" class="secondary hidden" target="_blank" rel="noopener noreferrer nofollow">🌐 Website</a></div></div>
+    <div id="psNone" class="status hidden">No details shared.</div>
+    <button id="psDM" class="primary wide">💬 Message</button>
+    <button id="psHideUser" class="secondary wide">🙈 Hide this user's messages</button>
+    <button id="psReport" class="secondary wide">🚩 Report / hide this profile</button>
+  </div>
+</div>
+<!-- Pin sheet (edit / view) -->
+<div id="pinPanel" class="panel hidden">
+  <div class="panel-card">
+    <div class="panel-head"><h2 id="pinHead">Drop a pin</h2><button id="closePin" class="xbtn">✕</button></div>
+    <div id="pinEdit">
+      <div class="col"><label for="pinAddr">Find by address</label><input id="pinAddr" class="txt" maxlength="160" placeholder="Street, city" autocomplete="off"></div>
+      <div id="pinAddrList" class="hidden"></div>
+      <div id="pinChosen" class="notice hidden"></div>
+      <button type="button" id="pinConfirmBtn" class="secondary wide hidden">Confirm this location</button>
+      <div class="emoji-row" id="pinEmojis"></div>
+      <div class="col"><label for="pinTitle">Label (optional)</label><input id="pinTitle" class="txt" maxlength="40" placeholder="e.g. Car wash meetup"></div>
+      <div class="col"><label for="pinNote">Note (optional)</label><textarea id="pinNote" class="txt" maxlength="200" rows="3"></textarea></div>
+      <div class="row"><label><input type="checkbox" id="pinShare"> <span id="pinShareLbl">Share</span></label></div>
+      <div id="pinWho" class="notice"></div>
+      <button type="button" id="pinSave" class="primary wide">Save on this device</button>
+      <div id="pinPublicBox" class="notice">
+        <b>Public</b>
+        <p id="pinPublicStatus">Public publishing needs a connected store and a signed-in owner. It is turned off. Save on this device keeps the pin on this phone only. Other people will not see it.</p>
+        <button type="button" id="pinPublishPublic" class="primary wide" hidden disabled>Publish publicly</button>
+      </div>
+    </div>
+    <div id="pinView" class="hidden">
+      <div class="pv-title"><span id="pvEmoji"></span> <b id="pvTitle"></b></div>
+      <div id="pvNote" class="ps-bio"></div>
+      <div id="pvMeta" class="status" style="text-align:left"></div>
+      <div class="ps-links"><button id="pvDir" class="primary">🧭 Directions</button><button id="pvEdit" class="secondary hidden">Edit label</button><button id="pvDel" class="secondary">🗑 Delete</button></div>
+    </div>
+  </div>
+</div>
+<!-- Chat -->
+<div id="chatPanel" class="panel hidden">
+  <div class="panel-card chat-card">
+    <div class="panel-head"><h2>Chat</h2><button id="closeChat" class="xbtn">✕</button></div>
+    <div class="row"><select id="chatThread" class="txt"></select></div>
+    <div id="chatWho" class="status"></div>
+    <div id="chatList"></div>
+    <div class="chat-input"><input id="chatText" class="txt" maxlength="300" placeholder="Message…" enterkeyhint="send"><button id="chatSend" class="primary">Send</button></div>
+  </div>
+</div>
+<div id="cardView" class="hidden"><img id="cardViewImg" alt="business card"></div>
+<div id="firstNotice" class="hidden">
+  <div class="fn-card"><b>📍 Live car sharing is on</b>
+  <p>Street Knowledge shares your live location and car photo publicly with other people using the app nearby, and shows their cars on your map.</p>
+  <div class="fn-btns"><button class="primary" data-m="public">OK, keep public</button><button class="secondary" data-m="private">Private group</button><button class="secondary" data-m="off">Turn off</button></div></div>
+</div>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="photo-pick.js"></script>
+<script src="public-pins.js"></script>
+<script src="app.js"></script>
+<script src="vision.js"></script>
+<script src="presence.js"></script>
+<script src="social.js"></script>
+</body>
+</html>
