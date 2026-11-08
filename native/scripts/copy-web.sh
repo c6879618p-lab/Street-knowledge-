@@ -6,7 +6,7 @@ SRC="${WEB_SRC:-}"
 if [ -z "$SRC" ]; then for c in ../docs ../car-gps /workspace/car-gps; do [ -f "$c/index.html" ] && SRC="$c" && break; done; fi
 [ -n "$SRC" ] || { echo "web source not found (set WEB_SRC)"; exit 1; }
 rm -rf www && mkdir -p www
-for f in index.html style.css app.js presence.js vision.js social.js sw.js manifest.webmanifest; do [ -f "$SRC/$f" ] && cp "$SRC/$f" www/; done
+for f in index.html style.css app.js photo-pick.js public-pins.js presence.js vision.js social.js sw.js manifest.webmanifest; do [ -f "$SRC/$f" ] && cp "$SRC/$f" www/; done
 cp -r "$SRC/icons" www/
 cp web-native/native-shim.js www/
 # load the shim before app.js

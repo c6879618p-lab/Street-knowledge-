@@ -30,7 +30,6 @@ function drawLocal() {
   for (const m of localMarkers.values()) m.remove(); localMarkers.clear();
   for (const p of myPins) localMarkers.set(p.id, new maplibregl.Marker({ element: pinEl(p, false), anchor: 'bottom' }).setLngLat([p.lon, p.lat]).addTo(map));
 }
-function pinTopicFor(p) { return P.st.mode === 'private' ? `${P.base}/pins/g/${p.id}` : `${P.base}/pins/c/${P.cellOf([p.lon, p.lat])}/${p.id}`; }
 function resubPins() {
   const c = P.client; if (!c) return;
   const me = typeof pos !== 'undefined' && pos ? pos : map.getCenter().toArray();
@@ -53,40 +52,153 @@ function clearShared() { for (const s of shared.values()) s.marker.remove(); sha
 
 // emoji picker
 EMOJIS.forEach(e => { const b = document.createElement('button'); b.textContent = e; b.onclick = () => { emoji = e; [...$('pinEmojis').children].forEach(x => x.classList.toggle('on', x.textContent === e)); }; $('pinEmojis').appendChild(b); });
+const publicMarkers = new Map();
+let pendingPlace = null, confirmedPlace = null, editingPublicId = null, pinSearchTimer = null, pinSearchCtl = null;
+const PublicPins = window.PublicPins;
+const publicBook = PublicPins.createBook({
+  storage: { load: () => lsGet('publicAddressPins', []), save: rows => lsSet('publicAddressPins', rows) },
+  store: window.__publicPinStore || null
+});
+function drawPublic() {
+  for (const m of publicMarkers.values()) m.remove(); publicMarkers.clear();
+  for (const p of publicBook.listLocal().filter(pin => pin.published)) {
+    const el = pinEl({ id: p.id, e: '📌', t: p.label || p.address }, false);
+    el.classList.add('public-held');
+    publicMarkers.set(p.id, new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat([p.lon, p.lat]).addTo(map));
+  }
+}
+function findPublic(id) { return publicBook.listLocal().find(p => p.id === id); }
+function syncPinActions() {
+  const control = PublicPins.publishControl(publicBook.connected, P.st.mode, $('pinShare').checked);
+  $('pinSave').textContent = control.saveLabel;
+  $('pinPublishPublic').disabled = !control.publishEnabled;
+  $('pinPublishPublic').classList.toggle('hidden', control.publishHidden);
+  if (control.publishHidden) $('pinPublishPublic').setAttribute('hidden', '');
+  else $('pinPublishPublic').removeAttribute('hidden');
+  if (!editingPublicId) $('pinPublicStatus').textContent = control.status;
+}
+function resetAddressUi() {
+  pendingPlace = null; confirmedPlace = null; editingPublicId = null;
+  $('pinAddr').value = ''; $('pinAddrList').classList.add('hidden'); $('pinAddrList').innerHTML = '';
+  $('pinChosen').classList.add('hidden'); $('pinChosen').textContent = '';
+  $('pinConfirmBtn').classList.add('hidden');
+  syncPinActions();
+}
+function configureShare() {
+  const priv = P.st.mode === 'private' && !!P.client;
+  $('pinShare').disabled = !priv; $('pinShare').checked = priv;
+  $('pinShareLbl').textContent = P.st.mode === 'private' ? `Share to group ${P.st.code}` : 'Group share is only for a private group';
+  updWho();
+}
 function openNewPin(lngLat) {
   editAt = lngLat; emoji = EMOJIS[0]; [...$('pinEmojis').children].forEach(x => x.classList.toggle('on', x.textContent === emoji));
   $('pinHead').textContent = 'Drop a pin'; $('pinTitle').value = ''; $('pinNote').value = '';
   $('pinEdit').classList.remove('hidden'); $('pinView').classList.add('hidden');
-  const can = !!P.client; $('pinShare').checked = can; $('pinShare').disabled = !can;
-  $('pinShareLbl').textContent = P.st.mode === 'private' ? `Share to group ${P.st.code}` : P.st.mode === 'public' ? 'Share publicly' : 'Share (turn on sharing first)';
-  updWho(); $('pinPanel').classList.remove('hidden'); viewing = null;
+  resetAddressUi(); configureShare(); $('pinPanel').classList.remove('hidden'); viewing = null;
 }
-function updWho() { $('pinWho').textContent = $('pinShare').checked ? `👁 Visible to: ${chanLabel()}. People who join later will see it too.` : '🔒 Only you will see this pin (saved on this device).'; }
+function updWho() {
+  if (P.st.mode === 'private' && $('pinShare').checked) $('pinWho').textContent = `🔒 Visible to group ${P.st.code}. People who join that group later can see it while the group broker keeps the message.`;
+  else if (P.st.mode === 'private') $('pinWho').textContent = '🔒 Only you will see this pin (saved on this device).';
+  else $('pinWho').textContent = 'Save on this device keeps this pin on this phone. It is not sent to other people.';
+  syncPinActions();
+}
 $('pinShare').onchange = updWho;
+$('pinAddr').addEventListener('input', () => {
+  const q = $('pinAddr').value.trim();
+  clearTimeout(pinSearchTimer);
+  confirmedPlace = null; pendingPlace = null; $('pinConfirmBtn').classList.add('hidden');
+  if (q.length < 3) { $('pinAddrList').classList.add('hidden'); return; }
+  pinSearchTimer = setTimeout(() => searchPinAddr(q), 400);
+});
+async function searchPinAddr(q) {
+  if (pinSearchCtl) pinSearchCtl.abort(); pinSearchCtl = new AbortController();
+  const bias = (typeof pos !== 'undefined' && pos) ? { lon: pos[0], lat: pos[1] } : null;
+  try {
+    const r = await fetch(PublicPins.photonUrl(q, bias), { signal: pinSearchCtl.signal });
+    const j = await r.json();
+    const box = $('pinAddrList'); box.innerHTML = '';
+    const places = (j.features || []).map(PublicPins.parsePhoton).filter(Boolean);
+    if (!places.length) box.innerHTML = '<div class="sug"><span class="s">No results</span></div>';
+    places.forEach(place => {
+      const d = document.createElement('div'); d.className = 'sug';
+      d.innerHTML = '<span class="pin">📍</span><div><div class="t"></div><div class="s"></div></div>';
+      d.querySelector('.t').textContent = place.name; d.querySelector('.s').textContent = place.address;
+      d.onclick = () => {
+        pendingPlace = place; confirmedPlace = null; box.classList.add('hidden');
+        $('pinChosen').classList.remove('hidden');
+        $('pinChosen').textContent = `Selected ${place.address} (${place.lat}, ${place.lon}). Confirm this exact point before saving it on this device.`;
+        $('pinConfirmBtn').classList.remove('hidden');
+      };
+      box.appendChild(d);
+    });
+    box.classList.remove('hidden');
+  } catch (e) { if (e.name !== 'AbortError') toast('Address search unavailable, try again'); }
+}
+$('pinConfirmBtn').onclick = () => {
+  try {
+    confirmedPlace = PublicPins.confirmPlace(pendingPlace);
+    editAt = [confirmedPlace.lon, confirmedPlace.lat];
+    $('pinChosen').textContent = `Confirmed ${confirmedPlace.address} at ${confirmedPlace.lat}, ${confirmedPlace.lon}. Save on this device does not show it to other people.`;
+    $('pinConfirmBtn').classList.add('hidden');
+  } catch (e) { $('pinPublicStatus').textContent = e.message; }
+};
+$('pinPublishPublic').onclick = async () => {
+  if (!publicBook.connected || $('pinPublishPublic').disabled) return;
+  try {
+    if (editingPublicId) {
+      const edited = await publicBook.updateLocal(editingPublicId, { label: $('pinTitle').value }, null);
+      $('pinPublicStatus').textContent = edited.ok ? 'Label updated for other people.' : 'Could not update that pin.';
+      drawPublic(); return;
+    }
+    const result = await publicBook.publishPublic({ place: confirmedPlace, label: $('pinTitle').value });
+    if (!result.published) { $('pinPublicStatus').textContent = result.blocker; return; }
+    $('pinPublicStatus').textContent = 'Published. Other people can see this address after you close the app.';
+    drawPublic();
+    closePin();
+  } catch (e) { $('pinPublicStatus').textContent = e.message || 'Confirm an address from search first. Nothing was published.'; }
+};
 function closePin() { $('pinPanel').classList.add('hidden'); viewing = null; }
 $('closePin').onclick = closePin;
 $('pinPanel').onclick = e => { if (e.target.id === 'pinPanel') closePin(); };
 $('pinBtn').onclick = () => openNewPin(map.getCenter().toArray());
 $('pinSave').onclick = () => {
-  const p = { id: rid(), t: clean($('pinTitle').value, 40) || 'Pin', n: clean($('pinNote').value, 200), e: emoji, lon: +editAt[0].toFixed(6), lat: +editAt[1].toFixed(6), by: P.st.name, bid: P.st.cid, ts: Date.now() };
-  if ($('pinShare').checked && P.client) { P.client.publish(pinTopicFor(p), JSON.stringify(p), { retain: true, qos: 1 }); toast('Pin shared'); }
-  else { myPins.push(p); lsSet('myPins', myPins); drawLocal(); toast('Pin saved'); }
+  if (!editAt) { toast('Drop a pin on the map or confirm an address'); return; }
+  const p = { id: rid(), t: clean($('pinTitle').value, 40) || (confirmedPlace ? confirmedPlace.name : 'Pin'), n: clean($('pinNote').value, 200), e: emoji, lon: +(+editAt[0]).toFixed(6), lat: +(+editAt[1]).toFixed(6), by: P.st.name, bid: P.st.cid, ts: Date.now() };
+  const target = PublicPins.shareTarget(P.st.mode, P.base, p.id);
+  if ($('pinShare').checked && target.kind === 'group' && P.client && target.topic) { P.client.publish(target.topic, JSON.stringify(p), { retain: true, qos: 1 }); toast('Pin shared with your group'); }
+  else { myPins.push(p); lsSet('myPins', myPins); drawLocal(); toast('Pin saved on this device'); }
   closePin();
 };
 function viewPin(id) {
-  const s = shared.get(id), p = s ? s.p : myPins.find(x => x.id === id); if (!p) return;
+  const pub = findPublic(id);
+  const s = shared.get(id), p = pub || (s ? s.p : myPins.find(x => x.id === id)); if (!p) return;
   viewing = id;
-  $('pinHead').textContent = s ? 'Shared pin' : 'My pin';
+  $('pinHead').textContent = pub ? 'Address pin' : (s ? 'Shared pin' : 'My pin');
   $('pinEdit').classList.add('hidden'); $('pinView').classList.remove('hidden');
-  $('pvEmoji').textContent = p.e; $('pvTitle').textContent = p.t; $('pvNote').textContent = p.n;
-  $('pvMeta').textContent = (s ? `Added by ${p.by === P.st.name && p.bid === P.st.cid ? 'you' : p.by} · ` : 'Only visible to you · ') + fmtTime(p.ts);
-  $('pvDel').classList.toggle('hidden', !!s && p.bid !== P.st.cid);
+  $('pvEmoji').textContent = pub ? '📌' : p.e; $('pvTitle').textContent = pub ? (p.label || p.address) : p.t; $('pvNote').textContent = pub ? p.address : p.n;
+  $('pvMeta').textContent = pub ? 'Public address pin, separate from live cars. Edit and delete use the signed-in account, not this device id.' : ((s ? `Added by ${p.by === P.st.name && p.bid === P.st.cid ? 'you' : p.by} · ` : 'Saved on this device · ') + fmtTime(p.ts));
+  $('pvEdit').classList.toggle('hidden', !pub);
+  $('pvDel').classList.toggle('hidden', !pub && !!s && (p.bid !== P.st.cid || s.topic.indexOf('/pins/g/') === -1));
   $('pinPanel').classList.remove('hidden');
 }
 $('pvDir').onclick = () => { const s = shared.get(viewing), p = s ? s.p : myPins.find(x => x.id === viewing); if (!p) return; closePin(); chooseDest([p.lon, p.lat], p.e + ' ' + p.t, p.n); };
-$('pvDel').onclick = () => {
+$('pvEdit').onclick = () => {
+  const p = findPublic(viewing); if (!p) return;
+  editingPublicId = p.id; confirmedPlace = { source: 'geocode', lon: p.lon, lat: p.lat, address: p.address, name: p.address, confirmed: true };
+  editAt = [p.lon, p.lat]; $('pinTitle').value = p.label || '';
+  $('pinHead').textContent = 'Edit label on this device';
+  $('pinEdit').classList.remove('hidden'); $('pinView').classList.add('hidden');
+  $('pinPublicStatus').textContent = publicBook.connected ? 'Update the public label with your signed-in account.' : PublicPins.publishControl(false, 'public', false).status;
+};
+$('pvDel').onclick = async () => {
+  const pub = findPublic(viewing);
+  if (pub) {
+    const removed = await publicBook.remove(pub.id, pub.ownerToken || null);
+    if (!removed.ok) { toast('Could not remove that pin'); return; }
+    drawPublic(); toast(removed.removedRemote ? 'Public pin removed' : 'Removed on this device.'); closePin(); return;
+  }
   const s = shared.get(viewing);
-  if (s) { if (P.client) { P.client.publish(s.topic, '', { retain: true, qos: 1 }); } else { toast('Turn sharing on to delete a shared pin'); return; } }
+  if (s) { if (P.client && s.topic.indexOf('/pins/g/') !== -1) { P.client.publish(s.topic, '', { retain: true, qos: 1 }); } else { toast('A shared group pin can only be cleared while group sharing is connected'); return; } }
   else { const i = myPins.findIndex(x => x.id === viewing); if (i >= 0) myPins.splice(i, 1); lsSet('myPins', myPins); drawLocal(); }
   toast('Pin deleted'); closePin();
 };
@@ -97,6 +209,7 @@ map.on('touchstart', e => { if (e.originalEvent.touches.length !== 1) return; co
 ['touchend', 'touchcancel', 'dragstart', 'zoomstart', 'pitchstart'].forEach(ev => map.on(ev, () => clearTimeout(lp)));
 map.on('touchmove', () => clearTimeout(lp));
 drawLocal();
+drawPublic();
 
 /* ================= CHAT ================= */
 const BAD = /\b(fuck\w*|shit\w*|bitch\w*|cunt\w*|asshole\w*|bastard\w*|dick\w*|piss\w*|slut\w*|whore\w*|fag\w*|nigg\w*|retard\w*)\b/gi;

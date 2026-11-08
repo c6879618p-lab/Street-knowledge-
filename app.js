@@ -347,7 +347,13 @@ DEFAULTS.forEach((src, i) => {
   b.onclick = () => { Object.assign(settings, { vehicleOk: true, img: src, rot: 0, mode: 'cutout', size: i === DEFAULTS.length - 1 ? 44 : 64 }); applyCar(); save(); };
   $('defaults').appendChild(b);
 });
-$('fileInput').onchange = async e => { const f = e.target.files[0]; if (f) await processCarFile(f); e.target.value = ''; };
+PhotoPick.wirePhotoSources({
+  galleryBtn: $('carGalleryBtn'), cameraBtn: $('carCameraBtn'),
+  galleryInput: $('fileInput'), cameraInput: $('fileInputCamera'),
+  setStatus: msg => { if (msg) $('procStatus').textContent = msg; },
+  nativePick: window.__nativePickPhoto || null,
+  onFile: file => processCarFile(file)
+});
 
 function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
 function toCanvas(img, max) {

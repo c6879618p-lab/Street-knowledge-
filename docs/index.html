@@ -127,9 +127,12 @@
   <div class="panel-card">
     <div class="panel-head"><h2>My Car</h2><button id="closeCar" class="xbtn">✕</button></div>
     <div class="preview-wrap"><div id="preview"><img id="previewImg" alt="car preview"></div><div class="arrow-hint">▲ front</div></div>
-    <label class="upload primary">📷 Upload photo of your car
-      <input id="fileInput" type="file" accept="image/*" capture="environment" hidden>
-    </label>
+    <div class="photo-sources" role="group" aria-label="Car photo">
+      <button type="button" class="secondary" id="carGalleryBtn">Choose from Gallery</button>
+      <button type="button" class="primary" id="carCameraBtn">Take a Photo</button>
+    </div>
+    <input id="fileInput" class="photo-input" type="file" accept="image/*" tabindex="-1" aria-hidden="true">
+    <input id="fileInputCamera" class="photo-input" type="file" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
     <div id="procStatus" class="status"></div>
     <div class="row"><label><input type="checkbox" id="bgRemove" checked> Remove background automatically</label></div>
     <div class="row"><label>Style
@@ -174,7 +177,12 @@
       <div class="col"><label>Service type</label><input id="pBizType" class="txt" maxlength="40" placeholder="Mobile detailing"></div>
       <div class="col"><label>Phone</label><input id="pPhone" class="txt" type="tel" maxlength="24"></div>
       <div class="col"><label>Website</label><input id="pWeb" class="txt" type="url" maxlength="120" placeholder="https://"></div>
-      <label class="upload secondary">🪪 Upload business card<input id="pCardFile" type="file" accept="image/*" hidden></label>
+      <div class="photo-sources" role="group" aria-label="Business card photo">
+        <button type="button" class="secondary" id="cardGalleryBtn">Choose from Gallery</button>
+        <button type="button" class="primary" id="cardCameraBtn">Take a Photo</button>
+      </div>
+      <input id="pCardFile" class="photo-input" type="file" accept="image/*" tabindex="-1" aria-hidden="true">
+      <input id="pCardCamera" class="photo-input" type="file" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
       <div class="row"><img id="pCardImg" class="card-thumb hidden" alt="business card"><button id="pCardDel" class="secondary hidden">Remove card</button></div>
     </div>
     <div id="pStatus" class="status"></div>
@@ -201,18 +209,27 @@
   <div class="panel-card">
     <div class="panel-head"><h2 id="pinHead">Drop a pin</h2><button id="closePin" class="xbtn">✕</button></div>
     <div id="pinEdit">
+      <div class="col"><label for="pinAddr">Find by address</label><input id="pinAddr" class="txt" maxlength="160" placeholder="Street, city" autocomplete="off"></div>
+      <div id="pinAddrList" class="hidden"></div>
+      <div id="pinChosen" class="notice hidden"></div>
+      <button type="button" id="pinConfirmBtn" class="secondary wide hidden">Confirm this location</button>
       <div class="emoji-row" id="pinEmojis"></div>
-      <div class="col"><label>Title</label><input id="pinTitle" class="txt" maxlength="40" placeholder="e.g. Car wash meetup"></div>
-      <div class="col"><label>Note (optional)</label><textarea id="pinNote" class="txt" maxlength="200" rows="3"></textarea></div>
+      <div class="col"><label for="pinTitle">Label (optional)</label><input id="pinTitle" class="txt" maxlength="40" placeholder="e.g. Car wash meetup"></div>
+      <div class="col"><label for="pinNote">Note (optional)</label><textarea id="pinNote" class="txt" maxlength="200" rows="3"></textarea></div>
       <div class="row"><label><input type="checkbox" id="pinShare"> <span id="pinShareLbl">Share</span></label></div>
       <div id="pinWho" class="notice"></div>
-      <button id="pinSave" class="primary wide">Save pin</button>
+      <button type="button" id="pinSave" class="primary wide">Save on this device</button>
+      <div id="pinPublicBox" class="notice">
+        <b>Public</b>
+        <p id="pinPublicStatus">Public publishing needs a connected store and a signed-in owner. It is turned off. Save on this device keeps the pin on this phone only. Other people will not see it.</p>
+        <button type="button" id="pinPublishPublic" class="primary wide" hidden disabled>Publish publicly</button>
+      </div>
     </div>
     <div id="pinView" class="hidden">
       <div class="pv-title"><span id="pvEmoji"></span> <b id="pvTitle"></b></div>
       <div id="pvNote" class="ps-bio"></div>
       <div id="pvMeta" class="status" style="text-align:left"></div>
-      <div class="ps-links"><button id="pvDir" class="primary">🧭 Directions</button><button id="pvDel" class="secondary">🗑 Delete</button></div>
+      <div class="ps-links"><button id="pvDir" class="primary">🧭 Directions</button><button id="pvEdit" class="secondary hidden">Edit label</button><button id="pvDel" class="secondary">🗑 Delete</button></div>
     </div>
   </div>
 </div>
@@ -233,6 +250,8 @@
   <div class="fn-btns"><button class="primary" data-m="public">OK, keep public</button><button class="secondary" data-m="private">Private group</button><button class="secondary" data-m="off">Turn off</button></div></div>
 </div>
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="photo-pick.js"></script>
+<script src="public-pins.js"></script>
 <script src="app.js"></script>
 <script src="vision.js"></script>
 <script src="presence.js"></script>

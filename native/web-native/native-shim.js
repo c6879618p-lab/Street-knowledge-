@@ -38,6 +38,27 @@
     try { Object.defineProperty(window, 'speechSynthesis', { configurable: true, get: () => synth }); } catch (e) {}
   }
 
+  /* --- Gallery / camera via the system picker. Called only after a button tap.
+        Photos uses the OS photo picker (no broad library permission). A grant
+        with no selected image returns null and nothing is uploaded. --- */
+  const Cam = plug('Camera');
+  window.__nativePickPhoto = async source => {
+    if (!Cam || !Cam.getPhoto) { const e = new Error('camera plugin unavailable'); e.code = 'unsupported'; throw e; }
+    const photo = await Cam.getPhoto({
+      quality: 85,
+      allowEditing: false,
+      resultType: 'dataUrl',
+      source: source === 'camera' ? 'CAMERA' : 'PHOTOS',
+      saveToGallery: false,
+      correctOrientation: true
+    });
+    const dataUrl = photo && (photo.dataUrl || (photo.base64String ? 'data:image/' + (photo.format || 'jpeg') + ';base64,' + photo.base64String : ''));
+    if (!dataUrl) return null;
+    const blob = await (await fetch(dataUrl)).blob();
+    const ext = String((photo && photo.format) || 'jpeg').replace('jpeg', 'jpg');
+    return new File([blob], 'photo.' + ext, { type: blob.type || 'image/jpeg' });
+  };
+
   /* --- Open website / tel: links outside the app --- */
   document.addEventListener('click', e => {
     const a = e.target.closest && e.target.closest('a[href]'); if (!a) return;
