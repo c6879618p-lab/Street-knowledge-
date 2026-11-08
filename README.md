@@ -4,6 +4,6 @@ Static GPS navigation progressive web app. Search for a destination, get a drivi
 
 Published with GitHub Pages from the repository root:
 
-https://paynelessservices83-bit.github.io/car-gps/
+https://c6879618p-lab.github.io/Street-knowledge-/
 
-Stylesheets, scripts, icons, the web manifest (`start_url` and `scope` are `./`), and the service worker registration use relative paths so the app loads under the `/car-gps/` subpath. `.nojekyll` tells GitHub Pages to serve these files as-is.
+Stylesheets, scripts, icons, the web manifest (`start_url` and `scope` are `./`), and the service worker registration use relative paths so the app loads under the `/Street-knowledge-/` subpath. `.nojekyll` tells GitHub Pages to serve these files as-is.

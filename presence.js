@@ -305,7 +305,7 @@ function renderList() {
     L.appendChild(b);
   });
 }
-const PUBLIC_URL = 'https://paynelessservices83-bit.github.io/street-knowledge/';
+const PUBLIC_URL = 'https://c6879618p-lab.github.io/Street-knowledge-/';
 function inviteLink() { const native = window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform(); return (native || !/^https?:$/.test(location.protocol) ? PUBLIC_URL : location.origin + location.pathname) + '?group=' + st.code; }
 function updateUI() {
   document.querySelectorAll('#fModes button').forEach(b => b.classList.toggle('on', b.dataset.mode === st.mode));

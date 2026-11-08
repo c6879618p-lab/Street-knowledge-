@@ -185,7 +185,7 @@ test('car and business-card markup exposes gallery and camera without forcing th
     assert.match(html, /src="photo-pick\.js"/);
   }
   const sw = fs.readFileSync(path.join(__dirname, 'sw.js'), 'utf8');
-  assert.match(sw, /street-knowledge-v12/);
+  assert.match(sw, /street-knowledge-v13/);
   assert.match(sw, /photo-pick\.js/);
   assert.match(sw, /public-pins\.js/);
   assert.equal(fs.readFileSync(path.join(__dirname, 'docs/sw.js'), 'utf8'), sw);
