@@ -42,6 +42,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Camera is requested only when the user taps Take a Photo.
+         Gallery uses the system photo picker, not broad media-library access. -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -50,5 +52,7 @@
         <intent><action android:name="android.intent.action.DIAL" /></intent>
         <intent><action android:name="android.intent.action.VIEW" /><data android:scheme="https" /></intent>
         <intent><action android:name="android.media.action.IMAGE_CAPTURE" /></intent>
+        <intent><action android:name="android.intent.action.GET_CONTENT" /><data android:mimeType="image/*" /></intent>
+        <intent><action android:name="android.intent.action.PICK" /><data android:mimeType="image/*" /></intent>
     </queries>
 </manifest>

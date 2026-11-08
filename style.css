@@ -54,6 +54,9 @@ body.navigating #searchWrap{display:none}
 #previewImg{max-width:150px;max-height:150px}
 .arrow-hint{font-size:12px;color:var(--muted);margin-top:4px}
 .upload{display:block;text-align:center;margin:8px 0}
+.photo-sources{display:flex;gap:8px;margin:8px 0}
+.photo-sources button{flex:1;margin:0;min-height:44px}
+.photo-input{position:fixed;left:-100px;top:0;width:1px;height:1px;opacity:.02}
 .status{font-size:13px;color:var(--muted);min-height:18px;text-align:center}
 .row{margin:10px 0;display:flex;align-items:center;gap:8px;font-size:14px}
 .row label{flex:1;display:flex;align-items:center;gap:10px} .row input[type=range]{flex:1}
@@ -118,6 +121,11 @@ textarea.txt{resize:vertical;font-family:inherit}
 .pin-marker{font-size:28px;cursor:pointer;filter:drop-shadow(0 2px 2px rgba(0,0,0,.45));transform:translateY(-12px);display:flex;flex-direction:column;align-items:center}
 .pin-marker small{font:600 11px system-ui;background:#fff;color:#202124;border-radius:8px;padding:1px 6px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3)}
 .pin-marker.shared::after{content:'👥';font-size:12px;position:absolute;top:-4px;right:-10px}
+.pin-marker.public-held{background:#fff;border:2px solid var(--blue);border-radius:14px;padding:2px 4px 4px}
+.pin-marker.public-held small{background:#1a73e8;color:#fff}
+#pinAddrList{margin-top:6px;background:var(--card);border-radius:12px;box-shadow:var(--shadow);max-height:180px;overflow:auto}
+#pinAddrList .sug{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+#pinPublicBox p{margin:6px 0 8px}
 .pv-title{font-size:18px;margin:8px 0}
 .chat-card{display:flex;flex-direction:column;height:80vh}
 #chatList{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:6px 0}

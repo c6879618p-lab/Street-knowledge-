@@ -232,8 +232,18 @@ $('fDetails').onclick = openProfileEditor;
 $('carDetails').onclick = () => { $('carPanel').classList.add('hidden'); openProfileEditor(); };
 $('closeProfile').onclick = () => $('profilePanel').classList.add('hidden');
 $('pMobile').onchange = e => $('pBizFields').classList.toggle('hidden', !e.target.checked);
-$('pCardFile').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; $('pStatus').textContent = 'Compressing card…';
-  try { draftCard = await compressCard(f); $('pStatus').textContent = draftCard ? `Card ready (${Math.round(draftCard.length * 3 / 4 / 1024)} KB)` : 'Card image too large'; } catch (err) { $('pStatus').textContent = 'Could not read that image'; } showDraftCard(); };
+PhotoPick.wirePhotoSources({
+  galleryBtn: $('cardGalleryBtn'), cameraBtn: $('cardCameraBtn'),
+  galleryInput: $('pCardFile'), cameraInput: $('pCardCamera'),
+  setStatus: msg => { if (msg) $('pStatus').textContent = msg; },
+  nativePick: window.__nativePickPhoto || null,
+  onFile: async file => {
+    $('pStatus').textContent = 'Compressing card…';
+    try { draftCard = await compressCard(file); $('pStatus').textContent = draftCard ? `Card ready (${Math.round(draftCard.length * 3 / 4 / 1024)} KB)` : 'Card image too large'; }
+    catch (err) { $('pStatus').textContent = 'Could not read that image'; }
+    showDraftCard();
+  }
+});
 $('pCardDel').onclick = () => { draftCard = ''; showDraftCard(); };
 $('pCardImg').onclick = () => viewCard(draftCard);
 $('pSave').onclick = () => {
