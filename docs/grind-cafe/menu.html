@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Menu — The Grind Cafe, Morganton</title>
+  <meta name="description" content="Breakfast, lunch, and daily specials at The Grind Cafe in downtown Morganton. Official menu as of June 1, 2024.">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;1,9..144,500&family=Oswald:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="demo-banner">This is a demo website designed by Payneless Services for The Grind Cafe.</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo-link" href="index.html"><img src="assets/logo-white.png" alt="The Grind Cafe"></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav id="site-nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="menu.html" class="is-active">Menu</a>
+        <a href="order.html">Order Ahead</a>
+        <a href="events.html">Events &amp; Catering</a>
+        <a href="rewards.html">Text Club</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="section">
+    <div class="wrap">
+      <p class="eyebrow">Kitchen + counter</p>
+      <h1>The menu</h1>
+      <p class="lede">Breakfast and lunch below are taken from the official printed menu posted on grindcafenc.com, dated June 1, 2024. Spellings and prices match that menu. Daily specials live in one file the owner can edit.</p>
+      <p class="source-note">Printed menu page 2 — coffee, smoothies, and ice cream — is not on the official website, so that section is clearly marked as sample content for the owner to fill in. We also could not read prices from the SinglePlatform menu page.</p>
+
+      <nav class="menu-jump" aria-label="Menu sections">
+        <a href="#specials">Daily specials</a>
+        <a href="#breakfast">Breakfast</a>
+        <a href="#byo">Build your own</a>
+        <a href="#lunch">Lunch</a>
+        <a href="#vegetarian">Vegetarian</a>
+        <a href="#sides">Sides</a>
+        <a href="#drinks">Coffee &amp; drinks</a>
+        <a href="#printed">Printed menu</a>
+      </nav>
+
+      <section id="specials">
+        <h2>Daily specials</h2>
+        <p class="fine-print">Editable in <code>js/specials.js</code>. The items below are sample placeholders until the owner pastes in today’s board.</p>
+        <div class="menu-grid" data-specials></div>
+      </section>
+
+      <section id="breakfast" style="margin-top:2.4rem">
+        <h2>Breakfast</h2>
+        <p class="fine-print">From the official 6/1/24 menu.</p>
+        <div class="menu-grid" data-menu="breakfast"></div>
+      </section>
+
+      <section id="byo" style="margin-top:2.4rem">
+        <h2>Build your own</h2>
+        <div data-menu="byo"></div>
+      </section>
+
+      <section id="lunch" style="margin-top:2.4rem">
+        <h2>Lunch</h2>
+        <p class="fine-print">From the official 6/1/24 menu, including the printed spelling “Remarkable Rueben.”</p>
+        <div class="menu-grid" data-menu="lunch"></div>
+      </section>
+
+      <section id="vegetarian" style="margin-top:2.4rem">
+        <h2>Vegetarian</h2>
+        <div class="menu-grid" data-menu="vegetarian"></div>
+      </section>
+
+      <section id="sides" style="margin-top:2.4rem">
+        <h2>Sides &amp; dressings</h2>
+        <div class="menu-grid" data-menu="sides"></div>
+        <p class="fine-print" data-chips-note></p>
+        <p><strong>House dressings:</strong> <span data-dressings></span></p>
+      </section>
+
+      <section id="drinks" style="margin-top:2.4rem">
+        <h2>Coffee, smoothies &amp; ice cream</h2>
+        <p class="source-note">Sample content for the owner to fill in. The official drinks page is not posted on grindcafenc.com, and no prices were available from SinglePlatform. These names and prices are placeholders for the Order Ahead demo only.</p>
+        <div class="menu-grid" data-menu="drinks"></div>
+      </section>
+
+      <section id="printed" style="margin-top:2.8rem">
+        <h2>Official printed menu</h2>
+        <p>The two pages currently posted at <a href="https://www.grindcafenc.com/menu" target="_blank" rel="noopener">grindcafenc.com/menu</a>. Open either image for a closer look.</p>
+        <div class="printed-menus">
+          <a href="assets/menu/menu-page-1.jpg" target="_blank" rel="noopener">
+            <img src="assets/menu/menu-page-1.jpg" alt="Official Grind Cafe breakfast menu, dated June 1, 2024">
+          </a>
+          <a href="assets/menu/menu-page-3.jpg" target="_blank" rel="noopener">
+            <img src="assets/menu/menu-page-3.jpg" alt="Official Grind Cafe lunch menu, dated June 1, 2024">
+          </a>
+        </div>
+      </section>
+
+      <p style="margin-top:2rem"><a class="btn" href="order.html">Order ahead for pickup</a></p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <img class="footer-logo" src="assets/logo-white.png" alt="The Grind Cafe">
+        <p>136 W Union St, Morganton, NC 28655</p>
+        <p><a href="tel:+18284304343">(828) 430-4343</a><br>
+        <a href="mailto:hello@grindcafenc.com">hello@grindcafenc.com</a></p>
+      </div>
+      <div>
+        <h3>Hours</h3>
+        <p>Monday–Saturday 7:30 AM–3:00 PM<br>Closed Sunday</p>
+      </div>
+    </div>
+    <p class="credit">Demo designed by Payneless Services</p>
+  </footer>
+  <script src="js/specials.js"></script>
+  <script src="js/menu-data.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      function itemHtml(item) {
+        return '<article class="menu-item"><div class="menu-item-top"><h3>' +
+          (item.sample ? '<span class="badge badge-sample">Sample</span> ' : '') +
+          Grind.escapeHtml(item.name) + '</h3><span class="price-pill">' +
+          Grind.money(item.price) + '</span></div><p>' +
+          Grind.escapeHtml(item.description || "") + "</p></article>";
+      }
+      function fill(sel, items) {
+        var el = document.querySelector(sel);
+        if (el) el.innerHTML = items.map(itemHtml).join("");
+      }
+      var menu = window.GRIND_MENU;
+      fill('[data-menu="breakfast"]', menu.breakfast);
+      fill('[data-menu="lunch"]', menu.lunch);
+      fill('[data-menu="vegetarian"]', menu.vegetarian);
+      fill('[data-menu="sides"]', menu.sides);
+      fill('[data-menu="drinks"]', window.GRIND_DRINKS_SAMPLE.items);
+      var byo = menu.buildYourOwn;
+      document.querySelector('[data-menu="byo"]').innerHTML =
+        itemHtml(byo) +
+        "<p><strong>Bread / bagel:</strong> " + Grind.escapeHtml(byo.breads.join(", ")) +
+        ".</p><p><strong>Protein:</strong> " + Grind.escapeHtml(byo.proteins.join(", ")) +
+        ".</p><p><strong>Cheese:</strong> " + Grind.escapeHtml(byo.cheeses.join(", ")) +
+        ". Add an egg for " + Grind.money(byo.addEggPrice) + ".</p>";
+      document.querySelector("[data-chips-note]").textContent = menu.chipsNote;
+      document.querySelector("[data-dressings]").textContent = menu.dressings.join(", ") + ".";
+    });
+  </script>
+</body>
+</html>

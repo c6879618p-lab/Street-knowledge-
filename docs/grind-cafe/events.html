@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Events &amp; Catering — The Grind Cafe</title>
+  <meta name="description" content="Live music, special dinners, and catering requests at The Grind Cafe in downtown Morganton, NC.">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;1,9..144,500&family=Oswald:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="demo-banner">This is a demo website designed by Payneless Services for The Grind Cafe.</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo-link" href="index.html"><img src="assets/logo-white.png" alt="The Grind Cafe"></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav id="site-nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="menu.html">Menu</a>
+        <a href="order.html">Order Ahead</a>
+        <a href="events.html" class="is-active">Events &amp; Catering</a>
+        <a href="rewards.html">Text Club</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="section">
+    <div class="wrap">
+      <p class="eyebrow">On the calendar</p>
+      <h1>Events &amp; catering</h1>
+      <p class="lede">Their Instagram already mentions live music and catering, but the current website never does. This page gives people a calendar and a form that sends the details in writing.</p>
+      <p class="source-note">The dates below are example events for this demo, not confirmed shows. A live site would be updated by the shop when a lineup is booked.</p>
+
+      <section>
+        <h2>Upcoming (examples)</h2>
+        <div data-events style="margin-top:1rem"></div>
+      </section>
+
+      <section style="margin-top:2.8rem">
+        <h2>Ask about catering</h2>
+        <p>Office lunches, parties, and special gatherings. Tell us the date, headcount, and budget and we’ll follow up. In a live version, this form would email <a href="mailto:hello@grindcafenc.com">hello@grindcafenc.com</a>.</p>
+        <div class="card" style="margin-top:1rem; max-width:40rem">
+          <form id="catering-form">
+            <div class="form-grid">
+              <div>
+                <label for="cat-name">Your name</label>
+                <input id="cat-name" name="name" type="text" autocomplete="name" required>
+              </div>
+              <div>
+                <label for="cat-phone">Phone</label>
+                <input id="cat-phone" name="phone" type="tel" autocomplete="tel" required>
+              </div>
+            </div>
+            <label for="cat-email">Email</label>
+            <input id="cat-email" name="email" type="email" autocomplete="email" required>
+            <div class="form-grid">
+              <div>
+                <label for="cat-date">Event date</label>
+                <input id="cat-date" name="date" type="date" required>
+              </div>
+              <div>
+                <label for="cat-headcount">Headcount</label>
+                <input id="cat-headcount" name="headcount" type="number" min="1" step="1" required>
+              </div>
+            </div>
+            <div class="form-grid">
+              <div>
+                <label for="cat-type">Event type</label>
+                <select id="cat-type" name="type" required>
+                  <option value="">Choose one</option>
+                  <option>Office lunch</option>
+                  <option>Party or celebration</option>
+                  <option>Meeting or workshop</option>
+                  <option>Memorial or family gathering</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="cat-budget">Budget (optional)</label>
+                <input id="cat-budget" name="budget" type="text" placeholder="e.g. about $400">
+              </div>
+            </div>
+            <label for="cat-notes">Anything else we should know?</label>
+            <textarea id="cat-notes" name="notes"></textarea>
+            <p class="form-error" id="catering-error" hidden></p>
+            <button class="btn btn-mustard" type="submit">Send demo request</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="catering-modal" aria-labelledby="catering-title">
+    <h2 id="catering-title">Request received — demo only</h2>
+    <div id="catering-body"></div>
+    <button class="btn" type="button" data-close-modal>Close</button>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <img class="footer-logo" src="assets/logo-white.png" alt="The Grind Cafe">
+        <p>136 W Union St, Morganton, NC 28655</p>
+        <p><a href="tel:+18284304343">(828) 430-4343</a><br>
+        <a href="mailto:hello@grindcafenc.com">hello@grindcafenc.com</a></p>
+      </div>
+      <div>
+        <h3>Hours</h3>
+        <p>Monday–Saturday 7:30 AM–3:00 PM<br>Closed Sunday</p>
+      </div>
+    </div>
+    <p class="credit">Demo designed by Payneless Services</p>
+  </footer>
+  <script src="js/specials.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/events.js"></script>
+</body>
+</html>

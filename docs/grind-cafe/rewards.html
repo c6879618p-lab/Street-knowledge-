@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Text Club &amp; Rewards — The Grind Cafe</title>
+  <meta name="description" content="Join The Grind Cafe text club for daily specials and weekend music, and earn a free item after ten visits.">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;1,9..144,500&family=Oswald:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="demo-banner">This is a demo website designed by Payneless Services for The Grind Cafe. No texts are sent.</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo-link" href="index.html"><img src="assets/logo-white.png" alt="The Grind Cafe"></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav id="site-nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="menu.html">Menu</a>
+        <a href="order.html">Order Ahead</a>
+        <a href="events.html">Events &amp; Catering</a>
+        <a href="rewards.html" class="is-active">Text Club</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="section">
+    <div class="wrap">
+      <p class="eyebrow">For regulars</p>
+      <h1>Text club &amp; rewards</h1>
+      <p class="lede">Get the daily special and the weekend music lineup on your phone. After ten visits, the next one is on us. A text reaches regulars even if they missed the Facebook post.</p>
+
+      <div class="feature-grid" style="margin-top:1.5rem">
+        <article class="card">
+          <h2>How the punch card works</h2>
+          <p>Every paid visit stamps one circle. After ten stamps, you get a free item of equal or lesser value on your next trip. Cards stay on your phone, so you don’t have to remember a paper one.</p>
+          <div class="punch-card" aria-label="Example buy-ten-get-one punch card, with no punches yet">
+            <strong>The Grind Cafe · Buy 10, get 1</strong>
+            <p class="fine-print">Your new card starts empty. This is a preview of how it would look.</p>
+            <div class="punch-grid">
+              <span class="punch">1</span>
+              <span class="punch">2</span>
+              <span class="punch">3</span>
+              <span class="punch">4</span>
+              <span class="punch">5</span>
+              <span class="punch">6</span>
+              <span class="punch">7</span>
+              <span class="punch">8</span>
+              <span class="punch">9</span>
+              <span class="punch is-free">Free</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" style="grid-column: span 1">
+          <h2>Join the text club</h2>
+          <p>A live program would send a short welcome text and let you reply STOP anytime. This demo does not store your number or send a message.</p>
+          <form id="text-club-form">
+            <label for="club-name">Name</label>
+            <input id="club-name" name="name" type="text" autocomplete="name" required>
+            <label for="club-phone">Mobile number</label>
+            <input id="club-phone" name="phone" type="tel" autocomplete="tel" required>
+            <label class="check-label">
+              <input id="club-consent" name="consent" type="checkbox">
+              <span>I agree to receive recurring automated marketing text messages from The Grind Cafe at the number I provided. Consent is not a condition of purchase. Message and data rates may apply. Reply STOP to unsubscribe or HELP for help.</span>
+            </label>
+            <p class="form-error" id="club-error" hidden></p>
+            <button class="btn btn-mustard" type="submit">Join (demo)</button>
+          </form>
+        </article>
+
+        <article class="card card-photo">
+          <img src="assets/photos/logo-beans.jpg" alt="The Grind Cafe logo filled with coffee beans, Morganton NC">
+          <div class="card-body">
+            <h3>Already on the list?</h3>
+            <p>In a live version you could text the shop keyword to check your punch count, or show this card at the register.</p>
+            <p class="fine-print">Hours: Monday–Saturday 7:30 AM–3:00 PM, closed Sunday. Questions? Call <a href="tel:+18284304343">(828) 430-4343</a> or email <a href="mailto:hello@grindcafenc.com">hello@grindcafenc.com</a>.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <dialog id="club-modal" aria-labelledby="club-title">
+    <h2 id="club-title">You’re in — demo only</h2>
+    <div id="club-body"></div>
+    <button class="btn" type="button" data-close-modal>Close</button>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <img class="footer-logo" src="assets/logo-white.png" alt="The Grind Cafe">
+        <p>136 W Union St, Morganton, NC 28655</p>
+        <p><a href="tel:+18284304343">(828) 430-4343</a><br>
+        <a href="mailto:hello@grindcafenc.com">hello@grindcafenc.com</a></p>
+      </div>
+      <div>
+        <h3>Hours</h3>
+        <p>Monday–Saturday 7:30 AM–3:00 PM<br>Closed Sunday</p>
+      </div>
+    </div>
+    <p class="credit">Demo designed by Payneless Services</p>
+  </footer>
+  <script src="js/specials.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/rewards.js"></script>
+</body>
+</html>

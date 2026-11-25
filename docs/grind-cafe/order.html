@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order Ahead for Pickup — The Grind Cafe</title>
+  <meta name="description" content="Order breakfast, lunch, and drinks ahead for pickup at The Grind Cafe, 136 W Union St, Morganton, NC.">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,650;1,9..144,500&family=Oswald:wght@500;600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="demo-banner">Demo ordering only — no real payments, emails, or kitchen tickets are sent.</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo-link" href="index.html"><img src="assets/logo-white.png" alt="The Grind Cafe"></a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav id="site-nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="menu.html">Menu</a>
+        <a href="order.html" class="is-active">Order Ahead <span class="cart-chip" data-cart-count hidden>0</span></a>
+        <a href="events.html">Events &amp; Catering</a>
+        <a href="rewards.html">Text Club</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="section">
+    <div class="wrap">
+      <p class="eyebrow">Skip the counter line</p>
+      <h1>Order ahead for pickup</h1>
+      <p class="lede">Choose your items, pick a time during open hours (Monday–Saturday, 7:30 AM–3:00 PM), and we’ll have it ready. This demo does not take payment. A live version would connect to Square, Toast, or Stripe.</p>
+
+      <div class="order-layout" style="margin-top:1.5rem">
+        <div id="order-menu">
+          <nav class="menu-jump" aria-label="Order sections">
+            <a href="#order-specials">Specials</a>
+            <a href="#order-breakfast">Breakfast</a>
+            <a href="#order-byo">Build your own</a>
+            <a href="#order-lunch">Lunch</a>
+            <a href="#order-veg">Vegetarian</a>
+            <a href="#order-sides">Sides</a>
+            <a href="#order-drinks">Drinks</a>
+          </nav>
+          <section id="order-specials">
+            <h2>Daily specials</h2>
+            <p class="fine-print">Sample specials until the owner updates <code>js/specials.js</code>.</p>
+            <div data-order-specials></div>
+          </section>
+          <section id="order-breakfast" style="margin-top:1.8rem">
+            <h2>Breakfast</h2>
+            <div data-order-breakfast></div>
+          </section>
+          <section id="order-byo" style="margin-top:1.8rem">
+            <h2>Build your own — $8.00</h2>
+            <div data-order-byo></div>
+          </section>
+          <section id="order-lunch" style="margin-top:1.8rem">
+            <h2>Lunch</h2>
+            <div data-order-lunch></div>
+          </section>
+          <section id="order-veg" style="margin-top:1.8rem">
+            <h2>Vegetarian</h2>
+            <div data-order-veg></div>
+          </section>
+          <section id="order-sides" style="margin-top:1.8rem">
+            <h2>Sides</h2>
+            <div data-order-sides></div>
+          </section>
+          <section id="order-drinks" style="margin-top:1.8rem">
+            <h2>Coffee, smoothies &amp; ice cream</h2>
+            <p class="source-note">Sample items and prices — official drink menu was not posted online. For demo purposes only.</p>
+            <div data-order-drinks></div>
+          </section>
+        </div>
+
+        <aside class="cart-panel" aria-label="Your order">
+          <h2>Your order</h2>
+          <div data-cart></div>
+          <div class="cart-total"><span>Total</span><span data-cart-total>$0.00</span></div>
+          <form id="order-form">
+            <label for="customer-name">Name</label>
+            <input id="customer-name" name="name" type="text" autocomplete="name" required>
+            <label for="customer-phone">Phone</label>
+            <input id="customer-phone" name="phone" type="tel" autocomplete="tel" required>
+            <div class="form-grid">
+              <div>
+                <label for="pickup-date">Pickup day</label>
+                <select id="pickup-date" name="date" required></select>
+              </div>
+              <div>
+                <label for="pickup-time">Pickup time</label>
+                <select id="pickup-time" name="time" required></select>
+              </div>
+            </div>
+            <p class="fine-print">Pickup times are in 15-minute steps from 7:45 AM to 2:45 PM, Monday–Saturday, America/New_York. Sunday is closed.</p>
+            <p class="form-error" id="order-error" hidden></p>
+            <button class="btn btn-mustard" type="submit">Place demo order</button>
+          </form>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <dialog id="confirm-modal" aria-labelledby="confirm-title">
+    <h2 id="confirm-title">Order received — demo only</h2>
+    <div id="confirm-body"></div>
+    <button class="btn" type="button" data-close-modal>Close</button>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div>
+        <img class="footer-logo" src="assets/logo-white.png" alt="The Grind Cafe">
+        <p>136 W Union St, Morganton, NC 28655</p>
+        <p><a href="tel:+18284304343">(828) 430-4343</a><br>
+        <a href="mailto:hello@grindcafenc.com">hello@grindcafenc.com</a></p>
+      </div>
+      <div>
+        <h3>Hours</h3>
+        <p>Monday–Saturday 7:30 AM–3:00 PM<br>Closed Sunday</p>
+      </div>
+    </div>
+    <p class="credit">Demo designed by Payneless Services</p>
+  </footer>
+  <script src="js/specials.js"></script>
+  <script src="js/menu-data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/order.js"></script>
+</body>
+</html>
