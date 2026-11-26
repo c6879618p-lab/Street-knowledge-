@@ -339,27 +339,49 @@ h3 { font-size: 1.15rem; }
 .video-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 20px;
+  justify-items: center;
 }
-.video-frame {
-  aspect-ratio: 9 / 14;
-  max-height: 420px;
+.tiktok-embed-wrap {
+  width: 100%;
+  max-width: 405px;
+  min-width: 0;
+}
+.tiktok-embed-wrap .tiktok-embed {
+  margin: 0 auto !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+/* Fallback card before TikTok's embed.js hydrates the player */
+blockquote.tiktok-embed:not(:has(iframe)) {
+  min-width: 0 !important;
+  aspect-ratio: 9 / 16;
+  min-height: 440px;
   border-radius: 16px;
   border: 1px solid var(--card-border);
   background:
-    radial-gradient(circle at 50% 40%, rgba(212, 175, 55, 0.12), transparent 50%),
+    radial-gradient(circle at 50% 40%, rgba(212, 175, 55, 0.14), transparent 50%),
     repeating-linear-gradient(135deg, #121318 0 12px, #0e0f14 12px 24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+blockquote.tiktok-embed:not(:has(iframe)) section {
+  text-align: center;
+}
+blockquote.tiktok-embed:not(:has(iframe)) a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 14px;
-  color: var(--muted);
-  text-align: center;
-  padding: 16px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  text-decoration: none;
+  color: var(--gold-light);
+  font-weight: 600;
 }
-.play-badge {
+blockquote.tiktok-embed:not(:has(iframe)) a::before {
+  content: "▶";
   width: 64px;
   height: 64px;
   border-radius: 50%;
@@ -367,8 +389,16 @@ h3 { font-size: 1.15rem; }
   place-items: center;
   background: linear-gradient(180deg, var(--gold-light), var(--gold-dark));
   color: #1a1404;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
+}
+.video-follow {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+.tiktok-icon {
+  flex-shrink: 0;
 }
 
 /* Booking */
@@ -623,7 +653,6 @@ input[type="file"]::file-selector-button {
 
 @media (min-width: 720px) {
   .service-grid, .video-grid { grid-template-columns: repeat(2, 1fr); }
-  .video-frame { aspect-ratio: 9 / 12; max-height: none; }
   .field-row { grid-template-columns: 1fr 1fr; }
   .booking-layout { grid-template-columns: 1fr 1fr; }
   .contact-card { grid-template-columns: 180px 1fr; }
@@ -650,7 +679,7 @@ input[type="file"]::file-selector-button {
   .site-nav a { font-size: 0.92rem; padding: 8px 8px; white-space: nowrap; }
   .header-call { margin-top: 0; margin-left: 8px; padding: 9px 14px; font-size: 0.88rem; }
   .service-grid { grid-template-columns: repeat(3, 1fr); }
-  .video-grid { grid-template-columns: repeat(3, 1fr); }
+  .video-grid { grid-template-columns: repeat(2, 1fr); }
   body { padding-bottom: 0; }
   .mobile-bar { display: none; }
   .hero { padding-top: 48px; padding-bottom: 80px; }
