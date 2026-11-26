@@ -7,13 +7,10 @@
   var STORAGE_KEY = "proDetailsReviews";
   var MAX_PHOTOS = 4;
   var SERVICE_LABELS = {
-    "exterior-wash-wax": "Exterior Wash & Wax",
-    "interior-deep-clean": "Interior Deep Clean",
-    "full-detail": "Full Detail",
-    "paint-correction-polish": "Paint Correction & Polish",
-    "ceramic-coating": "Ceramic Coating",
-    "engine-bay-headlight": "Engine Bay & Headlight Restoration",
-    "other": "Other / Not sure"
+    "silver-package": "Silver Package (Starting at $200)",
+    "gold-package": "Gold Package (Starting at $250)",
+    "platinum-package": "Platinum Package (Starting at $300)",
+    "custom": "Custom / Not Sure Yet"
   };
 
   var MONTHS = [
@@ -246,7 +243,7 @@
     if (!data.email) return "Please enter your email.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return "Please enter a valid email address.";
     if (!data.vehicle) return "Please enter your vehicle year, make, and model.";
-    if (!data.service) return "Please choose a service type.";
+    if (!data.service) return "Please choose a package.";
     if (!data.date) return "Please select a date on the calendar.";
     if (!data.time) return "Please select a time slot.";
     return "";
@@ -262,7 +259,7 @@
       "Phone: " + data.phone,
       "Email: " + data.email,
       "Vehicle: " + data.vehicle,
-      "Service: " + (SERVICE_LABELS[data.service] || data.service),
+      "Package: " + (SERVICE_LABELS[data.service] || data.service),
       "Requested date: " + formatLongDate(data.date),
       "Requested time: " + data.time,
       "Notes: " + (data.notes || "(none)"),
@@ -320,7 +317,7 @@
       ["Phone", data.phone],
       ["Email", data.email],
       ["Vehicle", data.vehicle],
-      ["Service", SERVICE_LABELS[data.service] || data.service],
+      ["Package", SERVICE_LABELS[data.service] || data.service],
       ["Requested date", formatLongDate(data.date)],
       ["Requested time", data.time],
       ["Notes", data.notes || "—"]
