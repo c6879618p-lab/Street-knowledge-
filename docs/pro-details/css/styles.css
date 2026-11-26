@@ -782,3 +782,22 @@ input[type="file"]::file-selector-button {
 @media (min-width: 1100px) {
   .header-inner { padding-left: 0; padding-right: 0; }
 }
+
+.fee-disclaimer {
+  margin: 0 0 1.75rem;
+  padding: 0.9rem 1.15rem;
+  border: 1px solid rgba(212, 168, 71, 0.45);
+  border-left: 3px solid var(--gold, #d4a847);
+  border-radius: 10px;
+  background: rgba(212, 168, 71, 0.08);
+  color: var(--text, #f5f5f7);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.fee-disclaimer strong {
+  color: var(--gold, #d4a847);
+}
+.fee-disclaimer-compact {
+  margin: 0.25rem 0 0.75rem;
+  font-size: 0.88rem;
+}
